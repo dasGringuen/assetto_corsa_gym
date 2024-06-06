@@ -1,6 +1,6 @@
 # Assetto Corsa Gym Environment
-This repository integrates the Assetto Corsa racing simulator with the OpenAI's Gym interface, providing a high-fidelity environment for developing and testing reinforcement learning algorithms in realistic racing scenarios.
-Customize cars, tracks, and conditions to create diverse training setups and leverage the powerful physics engine of Assetto Corsa for accurate simulations.
+
+OpenAI Gym interfaces with Assetto Corsa for Autonomous Racing. This repository integrates the Assetto Corsa racing simulator with the OpenAI's Gym interface, providing a high-fidelity environment for developing and testing Autonomous Racing algorithms in realistic racing scenarios.
 
 Features
 - High-Fidelity Simulation: Realistic car dynamics and track environments.
@@ -59,14 +59,7 @@ wget -O downloaded_file.zip "https://www.dropbox.com/scl/fo/dezimtveazd1w70ttggf
 ```
 
 
-
-
-
-
-
-
-
-# Python Installation
+## Python Installation
 
 **Install Visual Studio Compiler**
 - To compile the necessary components for the plugin, download and install the Visual Studio compiler from:
@@ -89,7 +82,7 @@ conda install -c conda-forge shapely # (linux) pip install shapely intersect
 - Complains about OpenCV. Fix:
 ```pip install setuptools==65.5.0 "wheel<0.40.0"```
 
-# Assetto Corsa plugin Installation
+## Assetto Corsa plugin Installation
 1. **Follow the manual**
 
 2. **Install vJoy**
@@ -138,9 +131,20 @@ conda install -c conda-forge shapely # (linux) pip install shapely intersect
     - Settings > Custom Shaders Patch
     - Click "install" to complete the setup.
 
+----
+
+## Citation
+```
+```
+
+----
+
+## Contributing
+
+You are very welcome to contribute to this project. Feel free to open an issue or pull request if you have any suggestions or bug reports, but please review our [guidelines](CONTRIBUTING.md) first. Our goal is to build a codebase that can easily be extended to new environments and tasks, and we would love to hear about your experience!
+
+----
 
 ## License
 
-All the code in this repository is licensed under fully permissive licenses (e.g., Apache-2.0).
-
-The assets are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/legalcode).
+This project is licensed under the MIT License - see the `LICENSE` file for details. Note that the repository relies on third-party code, which is subject to their respective licenses.
