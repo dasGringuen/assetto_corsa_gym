@@ -1,0 +1,229 @@
+<head>
+	<title>TD-MPC2</title>
+	<meta property="og:title" content="AssettoCorsaGym">
+	<meta property="og:description" content="A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data">
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script type="text/javascript">
+		function toggle(id) {
+			var e = document.getElementById(id);
+			if(e.style.display == 'block')
+				e.style.display = 'none';
+			else
+				e.style.display = 'block';
+		}
+	</script>
+</head>
+<div class="header" id="top">
+	<h1><span style="color:red; font-style:italic; font-weight:bold;">AssettoCorsaGym</span></span><br/>A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data</h1>
+	<table class="authors">
+		<tbody>
+			<tr>
+				<td>
+					<h4>
+						<strong></strong>Adrian Remonda<sup>1,2</sup></strong>,&ensp;
+						<strong></strong>Nicklas Hansen<sup>1</sup></strong>,&ensp;
+						<strong></strong>Ayoub Raji<sup>3</sup></strong>,&ensp;
+						<strong></strong>Nicola Musiu<sup>3</sup></strong>,<br/>
+						<strong>Marko Bertogna<sup>3</sup></strong>,&ensp;
+						<strong>Eduardo E. Veas<sup>2</sup></strong>,&ensp;
+						<strong>Xiaolong Wang<sup>1</sup></strong><br/>
+						<span class="authors-affiliation"><sup>1</sup>UC San Diego,&ensp;<sup>2</sup>TU-Graz,&ensp;<sup>3</sup>Unimore</span><br/>
+					</h4>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="links">
+		<a href="" class="btn"><i class="fa">&#xf1c1;</i>&ensp;Paper</a>
+		<a href="" class="btn"><i class="fa fa-link"></i>&ensp;OpenReview</a>
+		<a href="" class="btn"><i class="fa fa-github"></i>&ensp;Code</a>
+		<a href="" class="btn"><i class="fa fa-database"></i>&ensp;Dataset</a>
+	</div>
+</div>
+
+<div class="content">
+	<div class="hr"></div>
+	<div style="display: flex; justify-content: space-between; height: 320px;">
+		<div class="figure" style="background-image: url(images/sim_render_small.jpg); flex: 1; background-size: cover;"></div>
+		<div class="figure" style="background-image: url(images/sim_tug2_small.jpg); flex: 1; background-size: cover;"></div>
+		<div class="figure" style="background-image: url(images/sim_tug_small.jpg); flex: 1; background-size: cover;"></div>
+		<div class="figure" style="background-image: url(images/ucsd_sim_small.jpg); flex: 1; background-size: cover;"></div>
+	</div>
+	<div style="margin: auto; margin-top: -24px;">
+		<p>
+			<span style="color:red; font-style:italic; font-weight:bold;">Left</span>: Render of Assetto Corsa; 
+			<span style="color:red; font-style:italic; font-weight:bold;">Left Middle</span>: First view of the Assetto Corsa being driven by humans; 
+			<span style="color:red; font-style:italic; font-weight:bold;">Right Middle</span>: Cockpit of our advanced simulator; 
+			<span style="color:red; font-style:italic; font-weight:bold;">Right</span>: Cockpit of our mid-range simulator. Both simulators were used in our study.
+		</p>
+	</div>
+	<div class="hr"></div>
+	<div>
+		<h2>Abstract</h2>
+		<p class="abstract">
+			Despite the availability of international prize-money competitions, scaled vehicles, and simulation environments, research on autonomous racing and the control of sports cars operating close to the limit of handling has been limited by the high costs of vehicle acquisition and management, as well as the limited physics accuracy of open-source simulators. In this paper, we propose a racing simulation platform based on the simulator Assetto Corsa to test, validate, and benchmark autonomous driving algorithms, including reinforcement learning (RL) and classical Model Predictive Control (MPC), in realistic and challenging scenarios. Our contributions include the development of this simulation platform, several state-of-the-art algorithms tailored to the racing environment, and a comprehensive dataset collected from human drivers. Additionally, we evaluate algorithms in the offline RL setting. All the necessary code (including environment and benchmarks), working examples, and datasets are publicly released and can be found at			<a href="https://github.com/dasGringuen/assetto_corsa_gym">https://github.com/dasGringuen/assetto_corsa_gym</a>.
+		</p>
+	</div>
+
+	<div class="h"></div>
+	<h2>A Simulation Platform for Autonomous Racing</h2>
+
+	<div class="figure" style="height: 320px; background-image: url(images/RLfD-Racing.svg);"></div>
+	<div style="margin: auto; margin-top: -24px;">
+    <p>
+		<span style="color:red; font-style:italic; font-weight:bold;">Overview:</span>
+        Our platform provides a simple and intuitive environment interface between autonomous racing algorithms (RL and MPC), human drivers, and high-fidelity racing simulation for which we leverage Assetto Corsa. At the center of the framework is the simulator, which should offer: <span class="italic">(i)</span> controls to setup and initiate the simulation, <span class="italic">(ii)</span> static information about track and vehicle (track borders, vehicle setup and characteristics), <span class="italic">(iii)</span> state of the simulation (<span class="italic">telemetry</span> data about dynamic parameters of the vehicle, and <span class="italic">(iv)</span> vehicle controls . The <span class="italic">Sim Control Interface</span> builds on the plug-in interface from Assetto Corsa (AC).
+		   This interface allows external applications to access telemetry data through a callback synchronized with the game's physics engine and allows multiple
+			 instances of Assetto Corsa to run on different machines with a central node for data collection.
+    </p>
+	</div>
+
+
+	<div class="h"></div>
+	<div>
+		<h2>Videos</h2>
+
+		<div class="content-video" style="margin-bottom: 32px">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/gdiPCNSow6Y" frameborder="0" allowfullscreen></iframe>
+		</div>
+
+
+		<p>
+			<span style="color:red; font-style:italic; font-weight:bold;">Fast lap</span>
+			F317 Barcelona using SAC (Soft Actor-Critic) driving an F317 car on the Circuit de Barcelona-Catalunya in Assetto Corsa, showcasing how training with human data enhances self-learning capabilities. Demonstrates improved precision and adaptability in autonomous racing
+		</p>
+
+		<div class="content-video-container" style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
+			<div class="content-video" style="flex: 1 1 calc(33.333% - 16px);">
+				<iframe width="100%" height="315" src="https://www.youtube.com/embed/gdiPCNSow6Y" frameborder="0" allowfullscreen></iframe>
+			</div>
+			<div class="content-video" style="flex: 1 1 calc(33.333% - 16px);">
+				<iframe width="100%" height="315" src="https://www.youtube.com/embed/YT20ixO3RtA" frameborder="0" allowfullscreen></iframe>
+			</div>
+			<div class="content-video" style="flex: 1 1 calc(33.333% - 16px);">
+				<iframe width="100%" height="315" src="https://www.youtube.com/embed/io2XUazC0Dg" frameborder="0" allowfullscreen></iframe>
+			</div>
+		</div>
+
+		<p>
+			<span style="color:red; font-style:italic; font-weight:bold;">Recovering maneuver</span>
+			Delays are added artificially to force the car to lose control and recover it.
+		</p>
+
+	</div>
+
+
+<!-- 
+	<div class="hr"></div>
+	<div>
+		<h2>Supporting Open-Source Science</h2>
+		<div class="figure-caption">
+			<p>
+				We open-source a total of <span class="bold">324</span> TD-MPC<span class="bold">2</span> model checkpoints, including <span class="bold">12</span> multi-task models (ranging from 1M to 317M parameters) trained on 80, 70, and 30 tasks, respectively.
+			</p>
+			<div class="links" style="margin-bottom: 28px;">
+				<a href="https://www.tdmpc2.com/models" class="btn"><i class="fa fa-cogs"></i>&ensp;Models</a><a href="https://www.tdmpc2.com/dataset" class="btn"><i class="fa fa-database"></i>&ensp;Dataset</a>
+			</div>
+			<p>
+				Additionally, we also release the two 545M and 345M transition datasets that we used to train our multi-task models. The datasets are sourced from the replay buffers of 240 single-task agents and thus contain a wide range of behaviors.<br/><br/>
+			</p>
+			<table class="models">
+				<tbody>
+					<tr>
+						<th>Domains</th>
+						<th>Tasks</th>
+						<th>Embodiments</th>
+						<th>Episodes</th>
+						<th>Transitions</th>
+						<th>Size</th>
+						<th>Link</th>
+					</tr>
+					<tr class="models">
+						<td>
+							<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
+								<source src="videos/tdmpc2-walker-run.mp4" type="video/mp4"/>
+							</video>
+							<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
+								<source src="videos/tdmpc2-assembly.mp4" type="video/mp4"/>
+							</video>
+							<br/>
+							DMControl + Meta-World
+						</td>
+						<td>
+							80
+						</td>
+						<td>
+							12
+						</td>
+						<td>
+							2.69M
+						</td>
+						<td>
+							545M
+						</td>
+						<td>
+							34GB
+						</td>
+						<td>
+							<a href="https://www.tdmpc2.com/dataset">Download</a>
+						</td>
+					</tr>
+					<tr class="models">
+						<td>
+							<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
+								<source src="videos/tdmpc2-walker-run.mp4" type="video/mp4"/>
+							</video>
+							<br/>
+							DMControl
+						</td>
+						<td>
+							30
+						</td>
+						<td>
+							11
+						</td>
+						<td>
+							690k
+						</td>
+						<td>
+							345M
+						</td>
+						<td>
+							20GB
+						</td>
+						<td>
+							<a href="https://www.tdmpc2.com/dataset">Download</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>
+				We are excited to see what the community will do with these models and datasets, and hope that our release will encourage other research labs to open-source their checkpoints as well.
+			</p>
+		</div>
+	</div> -->
+
+
+	<div class="hr"></div>
+	<div style="padding-bottom: 64px; text-align: center;">
+		<h2>Citation</h2>
+		<p>
+			If you find our work useful, please consider citing the paper as follows:
+		</p>
+		<div id="bibtex-text" class="bibtexsection" onClick="window.getSelection().selectAllChildren(document.getElementById('bibtex-text'));">
+@misc{,
+	title={}, 
+	author={},
+	booktitle={},
+	year={2024}
+}</div>
+	</div>
+</div>
+<footer>
+<a href="#top"><i class="fa fa-arrow-up"></i><br/>Return to top</a>
+<div style="padding-top: 48px;">
+	<span>Website based on <a href="https://nicklashansen.github.io/td-mpc">TD-MPC</a> and <a href="https://nerfies.github.io">Nerfies</a>.</span>
+</div>
+</footer>
