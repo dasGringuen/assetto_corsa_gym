@@ -110,96 +110,152 @@
 	</div>
 
 
-<!-- 
-	<div class="hr"></div>
-	<div>
-		<h2>Supporting Open-Source Science</h2>
-		<div class="figure-caption">
-			<p>
-				We open-source a total of <span class="bold">324</span> TD-MPC<span class="bold">2</span> model checkpoints, including <span class="bold">12</span> multi-task models (ranging from 1M to 317M parameters) trained on 80, 70, and 30 tasks, respectively.
-			</p>
-			<div class="links" style="margin-bottom: 28px;">
-				<a href="https://www.tdmpc2.com/models" class="btn"><i class="fa fa-cogs"></i>&ensp;Models</a><a href="https://www.tdmpc2.com/dataset" class="btn"><i class="fa fa-database"></i>&ensp;Dataset</a>
-			</div>
-			<p>
-				Additionally, we also release the two 545M and 345M transition datasets that we used to train our multi-task models. The datasets are sourced from the replay buffers of 240 single-task agents and thus contain a wide range of behaviors.<br/><br/>
-			</p>
-			<table class="models">
-				<tbody>
-					<tr>
-						<th>Domains</th>
-						<th>Tasks</th>
-						<th>Embodiments</th>
-						<th>Episodes</th>
-						<th>Transitions</th>
-						<th>Size</th>
-						<th>Link</th>
-					</tr>
-					<tr class="models">
-						<td>
-							<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
-								<source src="videos/tdmpc2-walker-run.mp4" type="video/mp4"/>
-							</video>
-							<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
-								<source src="videos/tdmpc2-assembly.mp4" type="video/mp4"/>
-							</video>
-							<br/>
-							DMControl + Meta-World
-						</td>
-						<td>
-							80
-						</td>
-						<td>
-							12
-						</td>
-						<td>
-							2.69M
-						</td>
-						<td>
-							545M
-						</td>
-						<td>
-							34GB
-						</td>
-						<td>
-							<a href="https://www.tdmpc2.com/dataset">Download</a>
-						</td>
-					</tr>
-					<tr class="models">
-						<td>
-							<video playsinline="" autoplay="" loop="" preload="" muted="" height="40px">
-								<source src="videos/tdmpc2-walker-run.mp4" type="video/mp4"/>
-							</video>
-							<br/>
-							DMControl
-						</td>
-						<td>
-							30
-						</td>
-						<td>
-							11
-						</td>
-						<td>
-							690k
-						</td>
-						<td>
-							345M
-						</td>
-						<td>
-							20GB
-						</td>
-						<td>
-							<a href="https://www.tdmpc2.com/dataset">Download</a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<p>
-				We are excited to see what the community will do with these models and datasets, and hope that our release will encourage other research labs to open-source their checkpoints as well.
-			</p>
-		</div>
-	</div> -->
 
+	<!-- <div class="hr"></div>
+	<p>
+		<span style="color:red; font-style:italic; font-weight:bold;">Fast lap.</span>
+		F317 Barcelona using SAC (Soft Actor-Critic) driving an F317 car on the Circuit de Barcelona-Catalunya in Assetto Corsa, showcasing how training with human data enhances self-learning capabilities and demonstrates improved precision and adaptability in autonomous racing.
+	</p>
+	<img src="images/tracks_and_cars.jpg" alt="Tracks and Cars">
+	<p>
+		The image showcases the four tracks and three cars used in our dataset. The tracks include Indianapolis (IND), an easy oval track; Barcelona (BRN), featuring 14 distinct corners; Austria (RBR), a balanced track with technical turns and high-speed straights; and Monza (MNZ), the most challenging track with high-speed sections and complex chicanes. The cars are the Mazda Miata NA (Miata) with a top speed of 197 km/h, the Dallara F317 (F317) with a top speed of 250 km/h, and the BMW Z4 GT3 (GT3) with a top speed of 280 km/h. This diverse array ensures a comprehensive dataset for evaluating driving algorithms.
+	</p> -->
+
+	<div class="hr"></div>
+	<h2>Supporting Open-Source Science</h2>
+	<p>
+		<span style="color:red; font-style:italic; font-weight:bold;">Tracks and cars. </span>
+		The four tracks and three cars used in our dataset. The tracks include Indianapolis (IND), an easy oval track; Barcelona (BRN), featuring 14 distinct corners; Austria (RBR), a balanced track with technical turns and high-speed straights; and Monza (MNZ), the most challenging track with high-speed sections and complex chicanes. The cars are the Mazda Miata NA (Miata) with a top speed of 197 km/h, the Dallara F317 (F317) with a top speed of 250 km/h, and the BMW Z4 GT3 (GT3) with a top speed of 280 km/h. This diverse array ensures a comprehensive dataset for evaluating driving algorithms.
+    </p>
+	<div style="margin: auto; margin-top: -24px;  margin-bottom: 32px;"></div>
+	<div class="figure" style="height: 320px; background-image: url(images/tracks_and_cars.jpg);"></div>
+
+	<p>
+		We open-source a 64M-step dataset with 2.3M steps from human drivers and the remaining steps from Soft Actor-Critic (SAC) policies. Data was collected at UC San Diego and Graz University of Technology, 
+		involving 15 drivers completing at least five laps per track and car. Participants included a professional e-sports driver, four experts,
+		 five casual drivers, and five beginners. Data can be downloaded manually using the links or via this <a href="https://github.com/dasGringuen/assetto_corsa_gym/blob/main/README.md#download-datasets">script</a>.
+	</p>
+	<table class="models">
+		<thead>
+		  <tr>
+			<th>Car</th>
+			<th>Track</th>
+			<th colspan="3">Human Data</th>
+			<th>SAC Data</th>
+			<th>Download</th>
+		  </tr>
+		  <tr>
+			<th></th>
+			<th></th>
+			<th>Stints</th>
+			<th>Laps</th>
+			<th>Steps</th>
+			<th>Steps</th>
+			<th></th>
+		  </tr>
+		</thead>
+		<tbody>
+		  <tr class="models">
+			<td>F317</td>
+			<td>BRN</td>
+			<td>70</td>
+			<td>247</td>
+			<td>612,557</td>
+			<td>10M</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/ks_barcelona-layout_gp/dallara_f317">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>F317</td>
+			<td>MNZ</td>
+			<td>19</td>
+			<td>117</td>
+			<td>288,582</td>
+			<td>10M</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/monza/dallara_f317">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>F317</td>
+			<td>RBR</td>
+			<td>24</td>
+			<td>142</td>
+			<td>295,679</td>
+			<td>10M</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/ks_red_bull_ring-layout_gp/dallara_f317">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>F317</td>
+			<td>IND</td>
+			<td>1</td>
+			<td>4</td>
+			<td>4,605</td>
+			<td>4M</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/indianapolis_sp/dallara_f317">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>GT3</td>
+			<td>BRN</td>
+			<td>37</td>
+			<td>181</td>
+			<td>501,206</td>
+			<td>10M</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/ks_barcelona-layout_gp/bmw_z4_gt3">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>GT3</td>
+			<td>RBR</td>
+			<td>15</td>
+			<td>102</td>
+			<td>218,722</td>
+			<td>10M</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/ks_red_bull_ring-layout_gp/bmw_z4_gt3">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>GT3</td>
+			<td>MNZ</td>
+			<td>13</td>
+			<td>85</td>
+			<td>221,123</td>
+			<td>10M</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/monza/bmw_z4_gt3">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>Miata</td>
+			<td>BRN</td>
+			<td>5</td>
+			<td>27</td>
+			<td>99,145</td>
+			<td>10M</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/ks_barcelona-layout_gp/ks_mazda_miata">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>Miata</td>
+			<td>MNZ</td>
+			<td>2</td>
+			<td>10</td>
+			<td>38,395</td>
+			<td>-</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/monza/ks_mazda_miata">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td>Miata</td>
+			<td>RBR</td>
+			<td>3</td>
+			<td>12</td>
+			<td>32,971</td>
+			<td>-</td>
+			<td><a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/data_sets/ks_red_bull_ring-layout_gp/ks_mazda_miata">Download</a></td>
+		  </tr>
+		  <tr class="models">
+			<td><strong>Total</strong></td>
+			<td></td>
+			<td><strong>189</strong></td>
+			<td><strong>927</strong></td>
+			<td><strong>2,312,985</strong></td>
+			<td><strong>64M</strong></td>
+			<td></td>
+		  </tr>
+		</tbody>
+	  </table>
 
 	<div class="hr"></div>
 	<h2>A Simulation Platform for Autonomous Racing</h2>
@@ -211,13 +267,7 @@
 		Our proposed platform for autonomous racing. We provide interfaces (gray) that (1) connect a simulator (Assetto Corsa) to autonomous racing methods, and (2) allow for human
 		data collection. Interfaces receive track information and state, and execute actions in the simulator. Datasets (purple) are collected using an
 		ACTI (Assetto Corsa Telemetry Interface) tool.
-<!-- 
-        Our platform provides a simple and intuitive environment interface between autonomous racing algorithms (RL and MPC), human drivers, and high-fidelity racing simulation
-		for which we leverage Assetto Corsa. At the center of the framework is the simulator, which should offer: <span class="italic">(i)</span> controls to setup and initiate the simulation, <span class="italic">(ii)</span> static information about track and vehicle (track borders, vehicle setup and characteristics), <span class="italic">(iii)</span> state of the simulation (<span class="italic">telemetry</span> data about dynamic parameters of the vehicle, and <span class="italic">(iv)</span> vehicle controls . The <span class="italic">Sim Control Interface</span> builds on the plug-in interface from Assetto Corsa (AC).
-		   This interface allows external applications to access telemetry data through a callback synchronized with the game's physics engine and allows multiple
-			 instances of Assetto Corsa to run on different machines with a central node for data collection. -->
     </p>
-	
 
 	<div class="hr"></div>
 	<div style="padding-bottom: 64px; text-align: center;">
