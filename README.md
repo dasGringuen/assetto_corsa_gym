@@ -19,6 +19,7 @@ Features:
 - Customizable Scenarios: Various cars, tracks, and weather conditions.
 - RL Integration: Compatible with Gym for easy RL algorithm application.
 - [ROS2 interface](https://github.com/ayoubraji/assetto_corsa_ros2)
+- Baselines: SAC (this code base) and TD-MPC2 (to be uploaded soon)
 
 This repository contains all the necessary code to run the Gym interface for Assetto Corsa and RL benchmarks. For the ROS2 interface, refer to [ROS2 interface](https://github.com/ayoubraji/assetto_corsa_ros2)
 
@@ -80,7 +81,7 @@ This repository contains all the necessary code to run the Gym interface for Ass
     - To create a new track:
       - Each track needs an occupancy grid (pickle), a reference line (can be the one from AC but also something else), and the track bounds. These files are located in `assetto_corsa_gym/AssettoCorsaConfigs/tracks`.
       - The reference line and the occupancy grid are needed to run the Gym interface. 
-      - To create a new track:
+      - Create the occupancy grid, the reference path and the track bounds:
         - Start Assetto Corsa and set the new track.
         - Run `assetto_corsa_gym/AssettoCorsaConfigs/tracks/generate_track.ipynb` to create a new track. This script creates a pickle file with the occupancy grid, downloads the AC reference path, and visualizes the track. Make sure to update the `assetto_corsa_gym/AssettoCorsaConfigs/tracks/config.yaml` file.
 
@@ -95,8 +96,7 @@ This repository contains all the necessary code to run the Gym interface for Ass
 
 
 ## Benchmarks
-The experiments and parameters are configured by config.yml and run using `python train.py`. Optionally, you can point to another config file using `python train.py config=<config_file>`.
-Set the values in the config to enable logging to Weights and Biases. Every parameter in the config can be overridden in the terminal by using `<field>=<value>`. For example, to change the car, use `AssettoCorsa.car=<car>`.
+The experiments and parameters are configured by `config.yml` and run using `python train.py`. Optionally, you can point to another config file using `python train.py config=<config_file>`. Set the values in the config to enable logging to Weights and Biases. Every parameter in the config can be overridden in the terminal by using `<field>=<value>`. For example, to change the car, use `AssettoCorsa.car=<car>`.
 
   - **Train from SAC from Scratch**
     - To train SAC from scratch in Barcelona/F317, run:
