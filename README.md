@@ -100,12 +100,12 @@ Experiments and parameters are configured via `config.yml` and executed with `py
 
 
   - **Train from SAC from Scratch**
-    - To train SAC from scratch in Barcelona/F317, run:
+    - To train SAC from scratch in Barcelona/F317:
       ```
       python train.py
       ```
 
-    - or train on other cars and tracks (you need to set that car and track first in AC):
+    - To train on other cars and tracks (ensure the car and track are set first in AC):
 
       ```
       python train.py AssettoCorsa.track=<track> AssettoCorsa.car=<car>
