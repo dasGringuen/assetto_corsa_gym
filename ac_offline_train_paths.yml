@@ -1,0 +1,19 @@
+ks_barcelona-layout_gp:
+  dallara_f317:
+    - {id: 20240229_HC,                 type: human,  auto_shift: True,   ff: False, data_type: motec}
+    - {id: 20240304_AB,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240313_OP,                 type: human,  auto_shift: False,  ff: True,  data_type: motec}
+    - {id: 20240325_WL,                 type: human,  auto_shift: False,  ff: True,  data_type: motec}
+    - {id: 20240329_HC,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240329_ST,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240405_NH,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240410_A_12_123,           type: human,  auto_shift: False,  ff: True,  data_type: motec}
+    - {id: 20240410_A_21_231,           type: human,  auto_shift: False,  ff: True,  data_type: motec}
+    - {id: 20240411_A_12_312,           type: human,  auto_shift: False,  ff: True,  data_type: motec}
+    - {id: 20240417_HC,                 type: human,  auto_shift: False,  ff: True,  data_type: motec}
+    - {id: 20240423_IN,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240424_KW,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240425_RRK,                type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240426_AB,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240426_NiM,                type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240426_XX,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}

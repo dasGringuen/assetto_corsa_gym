@@ -94,10 +94,40 @@ This repository contains all the necessary code to run the Gym interface for Ass
   - Demonstrates the use of the Gym interface without an agent.
 
 
-## Train RL models
-```
-python train.py track <track> --load_path <path to model>
-```
+## Benchmarks
+The experiments and parameters are configured by config.yml and run using `python train.py`. Optionally, you can point to another config file using `python train.py config=<config_file>`.
+Set the values in the config to enable logging to Weights and Biases. Every parameter in the config can be overridden in the terminal by using `<field>=<value>`. For example, to change the car, use `AssettoCorsa.car=<car>`.
+
+  - **Train from SAC from Scratch**
+    - To train SAC from scratch in Barcelona/F317, run:
+      ```
+      python train.py
+      ```
+
+    - or train on other cars and tracks (you need to set that car and track first in AC):
+
+      ```
+      python train.py AssettoCorsa.track=<track> AssettoCorsa.car=<car>
+      ```
+      Example for Monza GT3:
+      ```
+      python train.py AssettoCorsa.track=monza AssettoCorsa.car=bmw_z4_gt3
+      ```
+
+- **Test a model by loading a checkpoint**
+  ```
+  python train.py --test --load_path <path_to_model> AssettoCorsa.track=<track> AssettoCorsa.car=<car>
+  ```
+
+- **Train SAC from demonstrations using an ensemble of buffers**
+  - Update ac_offline_train_paths.yml (see available data in data\paths.yml).
+
+  - Run:
+    ```
+    python train.py load_offline_data=True Agent.use_offline_buffer=True dataset_path=<path_to_dataset>
+    ```
+
+
 ## Download Datasets
 
 - Currently supported tracks:
