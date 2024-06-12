@@ -1,5 +1,5 @@
 <head>
-	<title>TD-MPC2</title>
+	<title>AssettoCorsaGym</title>
 	<meta property="og:title" content="AssettoCorsaGym">
 	<meta property="og:description" content="A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data">
 	<link rel="stylesheet" href="style.css">
@@ -16,19 +16,20 @@
 	</script>
 </head>
 <div class="header" id="top">
-	<h1><span style="color:red; font-style:italic; font-weight:bold;">AssettoCorsaGym</span></span><br/>A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data</h1>
+	<h1><br/>A Simulation Benchmark for Autonomous Racing<br> with Large-Scale Human Data</h1>
 	<table class="authors">
 		<tbody>
 			<tr>
 				<td>
 					<h4>
-						<strong></strong>Adrian Remonda<sup>1,2</sup></strong>,&ensp;
-						<strong></strong>Nicklas Hansen<sup>1</sup></strong>,&ensp;
-						<strong></strong>Ayoub Raji<sup>3</sup></strong>,&ensp;
-						<strong></strong>Nicola Musiu<sup>3</sup></strong>,<br/>
+						<strong>Adrian Remonda<sup>1,2</sup></strong>,&ensp;
+						<strong>Nicklas Hansen<sup>1</sup></strong>,&ensp;
+						<strong>Ayoub Raji<sup>3</sup></strong>,&ensp;
+						<strong>Nicola Musiu<sup>3</sup></strong>,<br/>
 						<strong>Marko Bertogna<sup>3</sup></strong>,&ensp;
 						<strong>Eduardo E. Veas<sup>2</sup></strong>,&ensp;
 						<strong>Xiaolong Wang<sup>1</sup></strong><br/>
+						<br/>
 						<span class="authors-affiliation"><sup>1</sup>UC San Diego,&ensp;<sup>2</sup>TU-Graz,&ensp;<sup>3</sup>Unimore</span><br/>
 					</h4>
 				</td>
@@ -38,27 +39,43 @@
 	<div class="links">
 		<a href="" class="btn"><i class="fa">&#xf1c1;</i>&ensp;Paper</a>
 		<a href="" class="btn"><i class="fa fa-link"></i>&ensp;OpenReview</a>
-		<a href="" class="btn"><i class="fa fa-github"></i>&ensp;Code</a>
-		<a href="" class="btn"><i class="fa fa-database"></i>&ensp;Dataset</a>
+		<a href="https://github.com/dasGringuen/assetto_corsa_gym" class="btn"><i class="fa fa-github"></i>&ensp;Code</a>
+		<a href="https://huggingface.co/datasets/dasgringuen/assettoCorsaGym" class="btn"><i class="fa fa-database"></i>&ensp;Dataset</a>
 	</div>
 </div>
 
+
+
+<div class="hr"></div>
 <div class="content">
-	<div class="hr"></div>
-	<div style="display: flex; justify-content: space-between; height: 320px;">
+    <div style="display: flex; justify-content: space-between; height: 320px; margin-bottom: -2.0em;">
 		<div class="figure" style="background-image: url(images/sim_render_small.jpg); flex: 1; background-size: cover;"></div>
 		<div class="figure" style="background-image: url(images/sim_tug2_small.jpg); flex: 1; background-size: cover;"></div>
 		<div class="figure" style="background-image: url(images/sim_tug_small.jpg); flex: 1; background-size: cover;"></div>
 		<div class="figure" style="background-image: url(images/ucsd_sim_small.jpg); flex: 1; background-size: cover;"></div>
-	</div>
-	<div style="margin: auto; margin-top: -24px;">
+    </div>
+    <div style="display: flex; justify-content: space-between;">
+        <div style="flex: 1; text-align: center; font-size: large;"><code>Render of Assetto Corsa</code></div>
+        <div style="flex: 1; text-align: center; font-size: large;"><code>FPV of Assetto Corsa</code></div>
+        <div style="flex: 1; text-align: center; font-size: large;"><code>Our advanced simulator</code></div>
+        <div style="flex: 1; text-align: center; font-size: large;"><code>Our mid-range simulator</code></div>
+    </div>
+    <div style="margin: auto; margin-top: 10px;">
 		<p>
-			<span style="color:red; font-style:italic; font-weight:bold;">Left</span>: Render of Assetto Corsa; 
-			<span style="color:red; font-style:italic; font-weight:bold;">Left Middle</span>: First view of the Assetto Corsa being driven by humans; 
-			<span style="color:red; font-style:italic; font-weight:bold;">Right Middle</span>: Cockpit of our advanced simulator; 
-			<span style="color:red; font-style:italic; font-weight:bold;">Right</span>: Cockpit of our mid-range simulator. Both simulators were used in our study.
+			<span style="color:red; font-style:italic; font-weight:bold;">Overview.</span> We propose a high-fidelity racing simulation platform based on Assetto Corsa that enables reproducible algorithm benchmarking, as well as data collection with human drivers. 
 		</p>
+    </div>
+
+	<div class="hr"></div>
+	<div class="content-video" style="margin-bottom: 32px">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/fPvcqnaUm2o" frameborder="0" allowfullscreen></iframe>
 	</div>
+	<p>
+		<span style="color:red; font-style:italic; font-weight:bold;">Fast lap.</span>
+		F317 Barcelona using SAC (Soft Actor-Critic) driving an F317 car on the Circuit de Barcelona-Catalunya in Assetto Corsa, showcasing how training with human data enhances self-learning capabilities. Demonstrates improved precision and adaptability in autonomous racing
+	</p>
+
+
 	<div class="hr"></div>
 	<div>
 		<h2>Abstract</h2>
@@ -67,33 +84,11 @@
 		</p>
 	</div>
 
-	<div class="h"></div>
-	<h2>A Simulation Platform for Autonomous Racing</h2>
-
-	<div class="figure" style="height: 320px; background-image: url(images/RLfD-Racing.svg);"></div>
-	<div style="margin: auto; margin-top: -24px;">
-    <p>
-		<span style="color:red; font-style:italic; font-weight:bold;">Overview:</span>
-        Our platform provides a simple and intuitive environment interface between autonomous racing algorithms (RL and MPC), human drivers, and high-fidelity racing simulation for which we leverage Assetto Corsa. At the center of the framework is the simulator, which should offer: <span class="italic">(i)</span> controls to setup and initiate the simulation, <span class="italic">(ii)</span> static information about track and vehicle (track borders, vehicle setup and characteristics), <span class="italic">(iii)</span> state of the simulation (<span class="italic">telemetry</span> data about dynamic parameters of the vehicle, and <span class="italic">(iv)</span> vehicle controls . The <span class="italic">Sim Control Interface</span> builds on the plug-in interface from Assetto Corsa (AC).
-		   This interface allows external applications to access telemetry data through a callback synchronized with the game's physics engine and allows multiple
-			 instances of Assetto Corsa to run on different machines with a central node for data collection.
-    </p>
-	</div>
-
-
-	<div class="h"></div>
+	<div class="hr"></div>
 	<div>
 		<h2>Videos</h2>
+		<h3>Recovering Manuevers</h3>
 
-		<div class="content-video" style="margin-bottom: 32px">
-			<iframe width="560" height="315" src="https://www.youtube.com/embed/gdiPCNSow6Y" frameborder="0" allowfullscreen></iframe>
-		</div>
-
-
-		<p>
-			<span style="color:red; font-style:italic; font-weight:bold;">Fast lap</span>
-			F317 Barcelona using SAC (Soft Actor-Critic) driving an F317 car on the Circuit de Barcelona-Catalunya in Assetto Corsa, showcasing how training with human data enhances self-learning capabilities. Demonstrates improved precision and adaptability in autonomous racing
-		</p>
 
 		<div class="content-video-container" style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
 			<div class="content-video" style="flex: 1 1 calc(33.333% - 16px);">
@@ -108,7 +103,7 @@
 		</div>
 
 		<p>
-			<span style="color:red; font-style:italic; font-weight:bold;">Recovering maneuver</span>
+			<span style="color:red; font-style:italic; font-weight:bold;">Recovering maneuver.</span>
 			Delays are added artificially to force the car to lose control and recover it.
 		</p>
 
@@ -205,6 +200,24 @@
 		</div>
 	</div> -->
 
+
+	<div class="hr"></div>
+	<h2>A Simulation Platform for Autonomous Racing</h2>
+	<div style="margin: auto; margin-top: -24px;  margin-bottom: 32px;"></div>
+	<div class="figure" style="height: 320px; background-image: url(images/RLfD-Racing.svg);"></div>
+    <p>
+		<span style="color:red; font-style:italic; font-weight:bold;">Overview. </span>
+
+		Our proposed platform for autonomous racing. We provide interfaces (gray) that (1) connect a simulator (Assetto Corsa) to autonomous racing methods, and (2) allow for human
+		data collection. Interfaces receive track information and state, and execute actions in the simulator. Datasets (purple) are collected using an
+		ACTI (Assetto Corsa Telemetry Interface) tool.
+<!-- 
+        Our platform provides a simple and intuitive environment interface between autonomous racing algorithms (RL and MPC), human drivers, and high-fidelity racing simulation
+		for which we leverage Assetto Corsa. At the center of the framework is the simulator, which should offer: <span class="italic">(i)</span> controls to setup and initiate the simulation, <span class="italic">(ii)</span> static information about track and vehicle (track borders, vehicle setup and characteristics), <span class="italic">(iii)</span> state of the simulation (<span class="italic">telemetry</span> data about dynamic parameters of the vehicle, and <span class="italic">(iv)</span> vehicle controls . The <span class="italic">Sim Control Interface</span> builds on the plug-in interface from Assetto Corsa (AC).
+		   This interface allows external applications to access telemetry data through a callback synchronized with the game's physics engine and allows multiple
+			 instances of Assetto Corsa to run on different machines with a central node for data collection. -->
+    </p>
+	
 
 	<div class="hr"></div>
 	<div style="padding-bottom: 64px; text-align: center;">
