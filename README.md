@@ -96,7 +96,8 @@ This repository contains all the necessary code to run the Gym interface for Ass
 
 
 ## Benchmarks
-Experiments and parameters are configured via `config.yml` and executed with `python train.py`. Optionally, you can specify a different config file using `python train.py config=<config_file>`. To enable logging to Weights and Biases, set the appropriate values in the config file. Each parameter in the config file can be modified directly from the terminal using `<field>=<value>`. For instance, to change the car, use `AssettoCorsa.car=<car>`.
+Experiments and parameters are configured via `config.yml` and executed with `python train.py`. Optionally, a different config file can be specified using `python train.py config=<config_file>`. To enable logging to Weights and Biases, appropriate values should be set in the config file. Each parameter in the config file can be modified directly from the terminal using `<field>=<value>`. For instance, to change the car, use `AssettoCorsa.car=<car>`.
+
 
   - **Train from SAC from Scratch**
     - To train SAC from scratch in Barcelona/F317, run:
