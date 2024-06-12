@@ -138,9 +138,8 @@ Experiments and parameters are configured via `config.yml` and executed with `py
   - Oval: `indianapolis_sp`
   - Silverstone: `ks_silverstone-gp`
 
-- To download
 
-  Run one track and car at a time. Replace `<track>` and `<car>`:
+- To download one track and car combination at a time, run the following replacing <track> and <car>:
 
   ```python
   from huggingface_hub import snapshot_download
