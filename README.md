@@ -1,135 +1,139 @@
-# Assetto Corsa Gym Environment
+<h1>Assetto Corsa Gym</span></h1>
 
+Official implementation of the paper:
+[A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data](https://dasgringuen.github.io/assetto_corsa_gym/)
+
+<img src="docs/images/sim_render_small.jpg" width="24%"><img src="docs/images/sim_tug2_small.jpg" width="24%"><img src="docs/images/sim_tug_small.jpg" width="24%"><img src="docs/images/ucsd_sim_small.jpg" width="24%">
+
+
+
+[[Website]](https://dasgringuen.github.io/assetto_corsa_gym/) [[Paper]]() [[Dataset]](https://huggingface.co/datasets/dasgringuen/assettoCorsaGym) [[ROS2 interface]](https://github.com/ayoubraji/assetto_corsa_ros2) 
+
+----
+
+## Overview
 Gym interfaces with Assetto Corsa for Autonomous Racing. This repository integrates the Assetto Corsa racing simulator with the OpenAI's Gym interface, providing a high-fidelity environment for developing and testing Autonomous Racing algorithms in realistic racing scenarios.
 
-Features
+Features:
 - High-Fidelity Simulation: Realistic car dynamics and track environments.
 - Customizable Scenarios: Various cars, tracks, and weather conditions.
 - RL Integration: Compatible with Gym for easy RL algorithm application.
-- ROS integration (see link)
+- [ROS2 interface](https://github.com/ayoubraji/assetto_corsa_ros2)
+
+This repository contains all the necessary code to run the Gym interface for Assetto Corsa and RL benchmarks. For the ROS2 interface, refer to [ROS2 interface](https://github.com/ayoubraji/assetto_corsa_ros2)
+
+## Source Code Tree:
+
+- **assetto_corsa_gym**
+  - **assetto-corsa-autonomous-racing-plugin**
+    - Plugin for AC
+  - **AssettoCorsaConfigs**
+    - **cars**
+    - **controls maps**
+    - **tracks**
+      - Track bounds
+      - Occupancy
+      - Racing line
+  - **AssettoCorsaEnv**
+    - Communication client
+    - OpenAI Gym interface
+- **algorithm**
+  - SAC baseline
+- **data**
+  - Extra information of the dataset and statistics. Instructions to record human demonstrations
 
 
-## Run
-
-### Train
-```
-python sac_train.py --config ../algorithm/discor/config/assettocorsa.yaml --track <track> --car <car>
-```
 
 
-### Test
-```
-python sac_train.py --config ../algorithm/discor/config/assettocorsa.yaml --disable_wandb --track <track> --car <car> --load_path <path to model> --test 
-```
+## Getting started
 
-# Download datasets
+1. **Install the AC plug-in**
+    Follow the instructions in [`INSTALL.md`](INSTALL.md)
 
 
-Create a path and navigate to it
-```
-mkdir data_sets && cd data_sets
-```
+1. **Install Python in Windows**
 
-# Tracks
+    - **Install Visual Studio Compiler**
+      - To compile the necessary components for the plugin, download and install the Visual Studio compiler from:
+      [Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+      - Make sure to install the C++ build tools component
 
-## Available
-Barcelona: ks_barcelona-layout_gp
-Monza: monza
-Austria: ks_red_bull_ring-layout_gp
-Oval: indianapolis_sp
-
-## Monza
-```
-wget -O downloaded_file.zip "https://www.dropbox.com/scl/fo/u8q1stkafbxw6mgavc9oo/AG64cejNqerJc8Rj9h0FTYk?rlkey=3i7hx2q7f528mkbfhy163e9r9&dl=1" && unzip downloaded_file.zip -d monza; rm downloaded_file.zip
-```
-
-## Barcelona
-```
-wget -O downloaded_file.zip "https://www.dropbox.com/scl/fo/jy7szdlsb6z5hceqbcipe/ABZ5IgqCLNEmoGeu-xxtRdU?rlkey=a8dketk9c77wgzx8am32dvrvy&dl=1" && unzip downloaded_file.zip -d ks_barcelona-layout_gp; rm downloaded_file.zip
-```
-
-## Indianapolis_sp (Oval)
-```
-wget -O downloaded_file.zip "https://www.dropbox.com/scl/fo/3vp25we2h8g7knuhpioic/ADHx7qb88-TdZk9su1KXWKg?rlkey=cgwdjdujuzhfquaiz2cjdo241&dl=1" && unzip downloaded_file.zip -d indianapolis_sp; rm downloaded_file.zip
-```
-
-## Austria
-```
-wget -O downloaded_file.zip "https://www.dropbox.com/scl/fo/dezimtveazd1w70ttggf0/AMmK8ue5VaKc6vYZT_t0-4Q?rlkey=mpyb2axbzzyebc6l85lnmh9ls&dl=1" && unzip downloaded_file.zip -d ks_red_bull_ring-layout_gp; rm downloaded_file.zip
-```
-
-
-## Python Installation
-
-**Install Visual Studio Compiler**
-- To compile the necessary components for the plugin, download and install the Visual Studio compiler from:
-[Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-- Make sure to install the C++ build tools component
-
-**Install Python using Anaconda**
-```
-conda create -n p309 python=3.9.13
-conda activate p309
-
-pip install setuptools==65.5.0
-pip install -r requirements.txt
-
-conda install pytorch==1.12.1 cudatoolkit=11.6 -c pytorch -c conda-forge
-conda install -c conda-forge shapely # (linux) pip install shapely intersect
-```
-
-### Problems
-- Complains about OpenCV. Fix:
-```pip install setuptools==65.5.0 "wheel<0.40.0"```
-
-## Assetto Corsa plugin Installation
-1. **Follow the manual**
-
-2. **Install vJoy**
-   - Needed to send commands to Assetto Corsa
-   -	Download and install [Vjoy](https://sourceforge.net/projects/vjoystick/)
-
-2. **Copy the plugin files**
-   - Navigate to your plugin folder:
-     ```
-     .\assetto-corsa-autonomous-racing-plugin\plugins\sensors_par
-     ```
-   - Copy it to your Assetto Corsa installation folder under `apps\python\`. The default AC installation folder is usually located at:
-     ```
-     <AC_installation_folder>\assettocorsa\apps\python\
-     ```
-     where `<AC_installation_folder>` is typically:
-     ```
-     C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\
-     ```
-   - The destination path should look something like this:
-     ```
-     C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\sensor_par
-     ```
-3. **Installation of Configuration Files**
-
-  - **Vjoy Configuration**
-    - The `Vjoy.ini` file is a configuration file for Assetto Corsa. It should be copied to:
+    - **Install Python using Anaconda**
       ```
-      C:\Users\%user%\Documents\Assetto Corsa\cfg\controllers\savedsetups
-      ```
-  - **WASD Controls**
-    - The `WASD.ini` file allows you to control the car using WASD keys. Copy it to:
-      ```
-      C:\Users\%user%\Documents\Assetto Corsa\cfg\controllers\savedsetups
-      ```
-  - **Dlls and Lib Folders**
-    - These folders contain a Python version of the socket library, used by the plugin. They should be copied to:
-      ```
-      C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\system\x64
+      conda create -n p309 python=3.9.13
+      conda activate p309
+      pip install setuptools==65.5.0
+      pip install -r requirements.txt
+      conda install pytorch==1.12.1 cudatoolkit=11.6 -c pytorch -c conda-forge
       ```
 
-5. **Custom Shaders Patch**
-    - This patch is needed to be able to restart the car. Install Content Manager from:
-    [Content Manager Download](https://acstuff.ru/app/)
-    - After installation, open Content Manager and navigate to:
-    - Settings > Custom Shaders Patch
-    - Click "install" to complete the setup.
+2. **Download the tracks occupancy grid**
+    - Get the files from here [tracks](https://huggingface.co/datasets/dasgringuen/assettoCorsaGym/tree/main/AssettoCorsaConfigs/tracks).
+    - Optionally, download them using the Huggingface Hub interface:
+      - Install it: `conda install -c conda-forge huggingface_hub`
+      - And run:
+        ```sh
+        python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='dasgringuen/assettoCorsaGym', repo_type='dataset', local_dir='AssettoCorsaGymDataSet', allow_patterns='AssettoCorsaConfigs/tracks/*')"
+        ```
+      - Move the pickle files to `assetto_corsa_gym/AssettoCorsaConfigs/tracks`.
+
+    - To create a new track:
+      - Each track needs an occupancy grid (pickle), a reference line (can be the one from AC but also something else), and the track bounds. These files are located in `assetto_corsa_gym/AssettoCorsaConfigs/tracks`.
+      - The reference line and the occupancy grid are needed to run the Gym interface. 
+      - To create a new track:
+        - Start Assetto Corsa and set the new track.
+        - Run `assetto_corsa_gym/AssettoCorsaConfigs/tracks/generate_track.ipynb` to create a new track. This script creates a pickle file with the occupancy grid, downloads the AC reference path, and visualizes the track. Make sure to update the `assetto_corsa_gym/AssettoCorsaConfigs/tracks/config.yaml` file.
+
+
+
+## Demos
+- **test_client.ipynb**
+  - Demonstrates the use of the Assetto Corsa Sim interface (client) without the OpenAI Gym interface layer.
+
+- **test_gym.ipynb**
+  - Demonstrates the use of the Gym interface without an agent.
+
+
+## Train RL models
+```
+python train.py track <track> --load_path <path to model>
+```
+## Download Datasets
+
+- Currently supported tracks:
+  - Barcelona: `ks_barcelona-layout_gp`
+  - Monza: `monza`
+  - Austria: `ks_red_bull_ring-layout_gp`
+  - Oval: `indianapolis_sp`
+  - Silverstone: `ks_silverstone-gp`
+
+- To download
+
+  Run one track and car at a time. Replace `<track>` and `<car>`:
+
+  ```python
+  from huggingface_hub import snapshot_download
+
+  snapshot_download(
+      repo_id="dasgringuen/assettoCorsaGym",
+      repo_type="dataset",
+      local_dir="AssettoCorsaGymDataSet",
+      allow_patterns="data_sets/<track>/<car>/*"
+  )
+  ```
+
+  Optionally, download everything at once (120GB):
+
+  ```python
+  from huggingface_hub import snapshot_download
+
+  snapshot_download(
+      repo_id="dasgringuen/assettoCorsaGym",
+      repo_type="dataset",
+      local_dir="AssettoCorsaGymDataSet",
+      allow_patterns="data_sets/*"
+  )
+  ```
 
 ----
 

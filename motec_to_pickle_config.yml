@@ -1,0 +1,5 @@
+ks_barcelona-layout_gp:
+  bmw_z4_gt3:
+    # humans
+    - {id: 20240423_IN,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}
+    - {id: 20240424_KW,                 type: human,  auto_shift: True,   ff: True,  data_type: motec}

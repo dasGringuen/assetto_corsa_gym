@@ -1,0 +1,78 @@
+load_offline_data: False    # offline pre-training and data loading
+pre_train: False            # pre train using offline data before start online training
+dataset_path: null          # Path to the datasets, null means it will be overridden by the command line if needed
+work_dir: null              # Path to run the model from (default: None)
+task: AssettoCorsaEnv
+seed: 0
+
+# wandb
+disable_wandb: True
+wandb_entity: null  # user
+wandb_project: sac
+wandb_silent: False
+exp_name: null
+task_title: null
+save_csv: True
+save_video: False
+save_agent: False
+action_dim: null  # placeholder
+steps: null # placeholder
+
+Agent:
+  num_steps: 10_000_000
+  batch_size: 128
+  memory_size: 10_000_000
+  offline_buffer_size: 10_000_000
+  use_offline_buffer: False # offline dual buffer
+  update_interval: 1
+  start_steps: 2000
+  log_interval: 10
+  eval_interval: 100000
+  num_eval_episodes: 1
+  checkpoint_freq: 200_000
+
+SAC:
+  gamma: 0.992
+  nstep: 3
+  policy_lr: 0.0003
+  q_lr: 0.0003
+  entropy_lr: 0.0003
+  policy_hidden_units: [256, 256, 256]
+  q_hidden_units: [256, 256, 256]
+  target_update_coef: 0.005
+  log_interval: 10
+
+DisCor:
+  error_lr: 0.0003
+  error_hidden_units: [256, 256, 256, 256]
+  tau_init: 10.0
+
+AssettoCorsa:
+  ego_sampling_freq: 25     # in Hz
+  max_episode_py_time: 600. # in seconds
+  train_steps: 10_000_000
+  gap_const: 12.
+  eval_number_of_laps: 4    # including out lap which is incomplete
+  save_lap_csv: False
+  remote_machine_ip: "localhost"   # "192.168.0.1" # "localhost"
+  ego_server_port: 2345
+  opponents_server_port: 2346
+  simulation_management_server_port: 2347
+  use_relative_actions: True
+  enable_sensors: True
+  vjoy_executed_by_server: False
+  enable_out_of_track_termination: True
+  enable_low_speed_termination: True
+  recover_car_on_done: False
+  send_reset_at_start: True
+  record_controls_from_client: False
+  enable_out_of_track_penalty: False
+  max_laps_number: null
+  enable_task_id_in_obs: False
+  penalize_actions_diff: False
+  penalize_actions_diff_coef: 0.1
+  track: "ks_barcelona-layout_gp"  # monza ks_barcelona-layout_gp ks_red_bull_ring-layout_gp, indianapolis_sp, ks_silverstone-gp
+  car: "dallara_f317"              # dallara_f317, ks_mazda_miata, bmw_z4_gt3
+  use_ac_out_of_track: True
+  add_previous_obs_to_state: True
+  use_reference_line_in_reward: True
