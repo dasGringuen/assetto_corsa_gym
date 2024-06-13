@@ -7,7 +7,8 @@ Official implementation of the paper:
 
 
 
-[[Website]](https://dasgringuen.github.io/assetto_corsa_gym/) [[Paper]]() [[Dataset]](https://huggingface.co/datasets/dasgringuen/assettoCorsaGym) [[ROS2 interface]](https://github.com/ayoubraji/assetto_corsa_ros2) 
+[[Website]](https://dasgringuen.github.io/assetto_corsa_gym/)  [[Dataset]](https://huggingface.co/datasets/dasgringuen/assettoCorsaGym) [[ROS2 interface]](https://github.com/ayoubraji/assetto_corsa_ros2) 
+ <!-- [[Paper]]() -->
 
 ----
 
