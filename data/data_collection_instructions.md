@@ -1,6 +1,4 @@
 # Instructions to collect data using Assetto Corsa ACTI plugin
-Contact: Adrian Remonda
-Mailto: <adrianremonda@gmail.com>
 
 ## To record human laps in Motec format
 ### Install Assetto Corsa Telemetry Interface (ACTI)
@@ -43,8 +41,8 @@ Mailto: <adrianremonda@gmail.com>
 
 ## Data Collection Protocol
 ### Tracks (priority top to bottom):
--	Barcelona GP (Official. Not sure if it is provided by the base game or the Assetto Corsa Ultimate Edition bundle is needed to get it)
-- 	Red Bull Ring GP  (Official. Not sure if it is provided by the base game or the Assetto Corsa Ultimate Edition bundle is needed to get it)
+-	Barcelona GP
+- 	Austria
 -	Monza
 
 ### Cars (priority top to bottom):
