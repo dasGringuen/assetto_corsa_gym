@@ -4,7 +4,6 @@
 Follow the instructions from [here](./data_collection_instructions.pdf)
 
 ## **Convert MoTeC files**
-  - See `/data`
   - Converts MoTeC files recorded by ACTI (ld files) to pickle. Only the telemetry is used. The state, reward, and actions are reconstructed when loading the offline data.
   - Steps to update and run:
     1. Copy the new MoTeC file to your dataset path and follow the structure

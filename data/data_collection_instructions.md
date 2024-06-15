@@ -12,8 +12,8 @@ Mailto: <adrianremonda@gmail.com>
 -   Ensure the FPS in Assetto Corsa is higher than 50fps.
 -   **Set the frequency in the ACTI client to 50Hz. The default setting is 20Hz. -> IMPORTANT**
 -   Steer Force Feedback channel:
-    Overwrite the file `steam\assettocorsa\apps\python\acti\acti.py` using this file:
-    https://www.dropbox.com/scl/fi/k5fb1s1e9v1l06fb40dxf/acti.py?rlkey=bqxua35od3e2opqo0mmbux7sz&dl=0
+    Overwrite the file `steam\assettocorsa\apps\python\acti\acti.py` using this [file](../assetto_corsa_gym/assetto-corsa-autonomous-racing-plugin/plugins/acti/acti.py)
+
     Alternatively, manually update line 514 as follows:
     ```
     #PackingString += "f"; PackingList.append(float(sim_info_obj.static.aidMechanicalDamage))
@@ -39,7 +39,7 @@ Mailto: <adrianremonda@gmail.com>
 - Ambient Temp.:              **26**
 - Time multiplier:            **1x**
 - Track Surface:              **Optimum**
-- Penalties:                  **off**
+- Penalties:                  **on**
 
 ## Data Collection Protocol
 ### Tracks (priority top to bottom):
