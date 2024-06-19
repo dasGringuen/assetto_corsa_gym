@@ -2,10 +2,7 @@ import ctypes
 import struct, time
 import math
 
-#from receiver.receiver.recv import SCALE
-
 CONST_DLL_VJOY = "C:\\Program Files\\vJoy\\x64\\vJoyInterface.dll"
-
 
 class vJoy(object):
     def __init__(self, reference=1):

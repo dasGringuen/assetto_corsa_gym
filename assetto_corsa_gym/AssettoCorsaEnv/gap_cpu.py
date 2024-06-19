@@ -1,3 +1,8 @@
+"""
+Racing Line Gap Calculation
+This code needs some optimization
+"""
+
 import numpy as np
 import torch
 
@@ -73,30 +78,21 @@ def get_gap(points, racing_line, calculate_distance=False, cum_distance_in_racin
     # dist shape: N, M. distance of each point to each point in the racing line
     dist = np.sqrt( np.square(xcoords) + np.square(ycoords) )
 
-    # 8us
-    # 2)
     # get index in the racing line to the minimum euclidian distance for each point
     rl_point = np.argmin(dist, axis=1)#.reshape(1,-1)   # shpae (9,)
-
-    # 9 us
-
 
     # if closest point is in position 0 change to 1. Needed to calculate the segment later
     rl_point[np.where(rl_point > (len(racing_line) - 2)  )] = len(racing_line) -2
 
-    # 12us
     # calculate the points and dist for the two segment that connect the nearest point
     start = racing_line[rl_point-1]
     end = racing_line[rl_point+0]
 
     dist_s0, points_s0, t_s0, angle_s0, projection_len_s0 = get_segment_to_point_dist(start, end, points)
 
-    # 92 us
     start = racing_line[rl_point+0]
     end = racing_line[rl_point+1]
     dist_s1, points_s1, t_s1, angle_s1, projection_len_s1 = get_segment_to_point_dist(start, end, points)
-
-    # 172
 
     # start with zero
     closest_points = points_s1.copy()
@@ -122,8 +118,6 @@ def get_gap(points, racing_line, calculate_distance=False, cum_distance_in_racin
         closest_segments[ok_idx_s0] = projection_len_s0[ok_idx_s0]
         cum_dist_to_rl_point[ok_idx_s0] = cum_distance_in_racing_line[rl_point[ok_idx_s0]]
 
-    # 182
-
     # ----
     # without this block from 238us to 196 µs
     # overlapping case
@@ -137,7 +131,6 @@ def get_gap(points, racing_line, calculate_distance=False, cum_distance_in_racin
     closest_points[ok_idx_s0_and_s1] = (points_s0[ok_idx_s0_and_s1].T * ((dist_min == 0) * 1.0)[ok_idx_s0_and_s1]).T + \
                                        (points_s1[ok_idx_s0_and_s1].T * ((dist_min == 1) * 1.0)[ok_idx_s0_and_s1]).T
 
-    # 207
     gap = distance(closest_points, points)
     gap = gap * angle_s0 * (-1)
     if calculate_distance:

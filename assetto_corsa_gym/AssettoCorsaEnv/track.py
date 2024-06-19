@@ -1,10 +1,3 @@
-'''
-Read track from FL's fltd files.
-Needed to get the borders of the track and middle of the track
-
-It also provides a racing line which is typically not used as we have the one from drivers.
-'''
-
 from scipy.interpolate import interp1d
 import xml.etree.ElementTree as ET
 
@@ -24,6 +17,7 @@ def interpolate_signal(original, output_len):
 
 from numba import jit
 from numba.np.extensions import cross2d
+
 @jit(nopython=True)
 def in_quadrilateral(boxes, points):
     '''
@@ -53,7 +47,7 @@ def in_quadrilateral(boxes, points):
 
     in_box = area <= total_area + 1e-9
 
-    # Manual implementation of np.any across a specific axis
+    # Manual implementation of np.any across a specific axis. To make it compatible with numba
     def any_in_box(in_box):
         result = np.zeros(in_box.shape[1], dtype=np.bool_)
         for i in range(in_box.shape[1]):
@@ -89,7 +83,7 @@ class Track:
         # self.middle_y = self.track.middle_y.values
         # self.middle_z = self.track.middle_z.values
 
-        #self.middle_yaw = self.track.middle_yaw.values
+        # self.middle_yaw = self.track.middle_yaw.values
 
         self.num_segments = self.right_border_x.shape[0]
 

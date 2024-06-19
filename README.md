@@ -18,11 +18,13 @@ Gym interfaces with Assetto Corsa for Autonomous Racing. This repository integra
 Features:
 - High-Fidelity Simulation: Realistic car dynamics and track environments.
 - Customizable Scenarios: Various cars, tracks, and weather conditions.
-- RL Integration: Compatible with Gym for easy RL algorithm application.
+- RL Integration: Compatible with Gym for easy application of RL algorithms.
 - [ROS2 interface](https://github.com/ayoubraji/assetto_corsa_ros2)
-- Baselines: SAC (this code base) and TD-MPC2 (to be uploaded soon)
+- Baselines: Soft Actor-Critic ([SAC](https://arxiv.org/abs/1801.01290))(this code base) and TD-MPC2 (to be uploaded soon)
 
 This repository contains all the necessary code to run the Gym interface for Assetto Corsa and RL benchmarks. For the ROS2 interface, refer to [ROS2 interface](https://github.com/ayoubraji/assetto_corsa_ros2)
+
+We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) implementation.
 
 ## Source Code Tree:
 
