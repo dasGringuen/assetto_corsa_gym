@@ -82,7 +82,8 @@ def main():
         algo = SAC(
             state_dim=env.observation_space.shape[0],
             action_dim=env.action_space.shape[0],
-            device=device, seed=config.seed, **OmegaConf.to_container(config.SAC))
+            device=device, seed=config.seed,
+            **OmegaConf.to_container(config.SAC))
     else:
         raise Exception('You need to set algo sac or discor')
 

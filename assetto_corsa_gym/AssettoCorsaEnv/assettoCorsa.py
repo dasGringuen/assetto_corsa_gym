@@ -35,7 +35,6 @@ class ModuleConfig:
         env = ac_env.AssettoCorsaEnv(self.config, # config
                                     use_relative_actions=self.config.use_relative_actions,
                                     ctrl_rate=self.config.ego_sampling_freq,
-                                    track_name=self.config.track, car_name=self.config.car,
                                     ac_configs_path=ac_configs_path,
                                     enable_sensors=self.config.enable_sensors,
                                     max_episode_steps=self.max_episode_steps,
@@ -58,6 +57,12 @@ def make_client_only(config):
     return Client(config.get_config())
 
 def make_ac_env(cfg, work_dir=None, ac_configs_path=None):
+    """
+    cfg: general configuration. This module will use the AssettoCorsa configuration (cfg.AssettoCorsa).
+    work_dir: path to the working directory where the logs (telemetry) will be saved
+    ac_configs_path: path to the AssettoCorsaConfigs folder containing the car and track configs.
+                     Default is None which will use the default path.
+    """
     if cfg and cfg.task != "AssettoCorsaEnv":
         # config from TDMPC
         raise ValueError('Unknown task:', cfg.task)

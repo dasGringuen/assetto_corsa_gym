@@ -106,7 +106,7 @@ class Agent:
                 self.train_episode()
                 if self._steps > self._num_steps:
                     break
-                if self._steps % self._eval_interval == 0:
+                if self._eval_interval and (self._steps % self._eval_interval == 0):
                     logger.info("Evaluating")
                     self.evaluate()
         finally:

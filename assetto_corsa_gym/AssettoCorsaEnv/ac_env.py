@@ -193,8 +193,6 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                  limit_pedal: float=100.0,
                  ctrl_rate: int=10,
                  tel_sampling_rate: int=10,
-                 track_name= None,
-                 car_name=None,
                  ac_configs_path= None,
                  use_target_speed: bool=False,
                  torch_device = None,
@@ -238,8 +236,8 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.limit_pedal = limit_pedal
         self.ctrl_rate = ctrl_rate # check
         self.tel_sampling_rate = tel_sampling_rate
-        self.track_name = track_name
-        self.car_name = car_name
+        self.track_name = self.config.track
+        self.car_name = self.config.car
         self.ac_configs_path = ac_configs_path
         self.use_target_speed = use_target_speed
         self.torch_device = torch_device

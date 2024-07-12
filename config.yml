@@ -6,8 +6,8 @@ task: AssettoCorsaEnv
 seed: 0
 
 # wandb
-disable_wandb: True
-wandb_entity: null  # user
+disable_wandb: False
+wandb_entity: adrianremonda  # user
 wandb_project: sac
 wandb_silent: False
 exp_name: null
@@ -22,12 +22,12 @@ Agent:
   num_steps: 10_000_000
   batch_size: 128
   memory_size: 10_000_000
-  offline_buffer_size: 10_000_000
+  offline_buffer_size: 12_000_000
   use_offline_buffer: False # offline dual buffer
   update_interval: 1
   start_steps: 2000
   log_interval: 10
-  eval_interval: 100000
+  eval_interval: 0
   num_eval_episodes: 1
   checkpoint_freq: 200_000
 

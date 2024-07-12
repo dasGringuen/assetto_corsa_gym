@@ -82,7 +82,7 @@ class DataLoader():
 
         done = False
         terminated = False
-        if self.state["out_of_track_calc"]: # or AC oot
+        if self.state["out_of_track"]: # or AC oot
             terminated = True
             #self.reward = .0
             # don't end the episode on oot , human laps are full of them
