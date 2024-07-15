@@ -159,19 +159,7 @@ class StaticInfo(dict):
         self.car_id = car_id
         self.done_static_info = False
 
-    # The static car's data should be inserted in content/cars/<car_name>/ui/ui_car.json file
-    # Following this structure:
-    #    "specs":
-    #    {
-    #      .
-    #      .
-    #    	"weight": "1245kg",
-    #      .
-    #      .
-    #    	"length": 4.634,
-    #    	"width": 1.912,
-    #    	"height": 1.28
-    #    },
+    # The static car's data should be in content/cars/<car_name>/ui/ui_car.json
     def collect_static_info(self):
         name = ac.getCarName(self.car_id)
         self["TrackName"] = ac.getTrackName(self.car_id)
