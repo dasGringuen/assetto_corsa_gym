@@ -6,8 +6,8 @@ task: AssettoCorsaEnv
 seed: 0
 
 # wandb
-disable_wandb: False
-wandb_entity: adrianremonda  # user
+disable_wandb: True
+wandb_entity: null  # user
 wandb_project: sac
 wandb_silent: False
 exp_name: null
