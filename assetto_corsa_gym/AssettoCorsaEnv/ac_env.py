@@ -190,72 +190,39 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
     def __init__(self, config,
                  output_path: None,
-                 limit_pedal: float=100.0,
-                 ctrl_rate: int=10,
-                 tel_sampling_rate: int=10,
                  ac_configs_path= None,
-                 use_target_speed: bool=False,
                  torch_device = None,
-                 use_relative_actions = True,
-                 enable_sensors=True,
                  enable_out_of_track_calculation=True,
                  max_episode_steps=None,
-                 finish_distance=None,
                  max_gap=None,
-                 enable_low_speed_termination=True,
-                 enable_going_backwards_termination=True,
-                 enable_out_of_track_termination=True,
                  gap_const = 12., # gap penalization
                  penalize_gap = True,
                  save_observations=True,
-                 send_reset_at_start=True,
-                 recover_car_on_done=False,
-                 add_previous_obs_to_state=False,
                  ):
         """ Assetto Corsa External Driver.
-
-        :param setup_path: path to the setup
-        :param setup_name: setup name without extension
-        :param license_file: path to the license file
-        :param vsm_path: path where AVLJobProcessor is installed
-        :param vsm_fmu_path: path to the FMU and FMU's configuration file
-        :param vsm_integrator_freq: VSM integrator frequency (default 2000 is 2khz)
-        :param bot_pedal: Enable the VSM driver throttle
-        :param bot_brake: Enable the VSM driver brake
-        :param bot_steer: Enable the VSM driver steer
-        :param port: VSM/FMU UDP port
-        :param archive_path: path where the resulting CSV file with the telemetry will be written
-        :param limit_pedal: limit the VSM driver throttle ([%]) -> not implemented in the FMU
-        :param ctrl_rate: control rate (Hz)
-        :param tel_sampling_rate: sampling rate (Hz) for the telemetry written to the output CSV file
-        :param max_dist: terminate the episode if the distance channel is bigger than ``max_dist``. The termination will be checked in the flat out lap only and not the outlap
         """
         gym_utils.EzPickle.__init__(self)
         self.config = config
         self.output_path = output_path
-        self.limit_pedal = limit_pedal
-        self.ctrl_rate = ctrl_rate # check
-        self.tel_sampling_rate = tel_sampling_rate
+        self.ctrl_rate = self.config.ego_sampling_freq # check
         self.track_name = self.config.track
         self.car_name = self.config.car
         self.ac_configs_path = ac_configs_path
-        self.use_target_speed = use_target_speed
+        self.use_target_speed = self.config.use_target_speed
         self.torch_device = torch_device
-        self.use_relative_actions = use_relative_actions
-        self.enable_sensors = enable_sensors
+        self.use_relative_actions = self.config.use_relative_actions
+        self.enable_sensors = self.config.enable_sensors
         self.enable_out_of_track_calculation = enable_out_of_track_calculation
         self.max_episode_steps = max_episode_steps
-        self.finish_distance = finish_distance
-        self.enable_low_speed_termination = enable_low_speed_termination
-        self.enable_going_backwards_termination = enable_going_backwards_termination
+        self.enable_low_speed_termination = self.config.enable_low_speed_termination
         self.max_gap = max_gap
         self.gap_const = gap_const
         self.penalize_gap = penalize_gap
         self.save_observations = save_observations
-        self.send_reset_at_start = send_reset_at_start
-        self.recover_car_on_done = recover_car_on_done
-        self.enable_out_of_track_termination = enable_out_of_track_termination
-        self.add_previous_obs_to_state = add_previous_obs_to_state
+        self.recover_car_on_done = self.config.recover_car_on_done
+        self.enable_out_of_track_termination = self.config.enable_out_of_track_termination
+        self.add_previous_obs_to_state = self.config.add_previous_obs_to_state
+        self.send_reset_at_start = self.config.send_reset_at_start
 
         # from the config
         self.use_ac_out_of_track = self.config.use_ac_out_of_track
@@ -263,7 +230,6 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
         self.penalize_actions_diff = config.penalize_actions_diff
         self.penalize_actions_diff_coef = config.penalize_actions_diff_coef
-        self.use_reference_line_in_reward = config.use_reference_line_in_reward
 
         self.max_laps_number = self.config.max_laps_number
 
@@ -297,7 +263,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
         self.dt = 1. / self.ctrl_rate
 
-        # load track
+        # load track  # TODO: use pytorch?
         self.track = Track(track_file_path=self.track_file, track_grid_file=self.track_grid_file,
                            torch_device=None) # Note: send the torch device to find the grid using pytorch
 
@@ -316,9 +282,13 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             self.sensors = sensors_ray_casting.SensorsRayCasting(self.track.right_border_x, self.track.right_border_y,
                                                              self.track.left_border_x, self.track.left_border_y)
 
-        # Pedal
+        #
+        # for gym
+        #
+
+        # In the pedal
         #   The low bound is the falling edge of the pedal
-        # Brake:
+        # In the brake:
         #    The low bound is the brake release
         #    The upper bound is the brake press;
         self.controls_rate_limit = np.array([[-600/180, 600/180],
@@ -362,7 +332,6 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         logger.info(f"use_relative_actions {self.use_relative_actions}")
         logger.info(f"use_target_speed {self.use_target_speed}")
         logger.info(f"use_ac_out_of_track: {self.use_ac_out_of_track}")
-        logger.info(f"send_reset_at_start: {self.send_reset_at_start}")
         logger.info(f"recover_car_on_done: {self.recover_car_on_done}")
         logger.info(f"enable_out_of_track_termination: {self.enable_out_of_track_termination}")
         logger.info(f"enable_low_speed_termination: {self.enable_low_speed_termination}")
@@ -593,13 +562,10 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         return state, buf_infos
 
     def get_reward(self, state, actions_diff):
-        speed = 3.6 * np.array(state['speed'])
         out_of_track = state["out_of_track_calc"]
-        dist_to_border = state["dist_to_border"]
+        #dist_to_border = state["dist_to_border"]
 
-        r = speed
-        if self.use_reference_line_in_reward:
-            r *= ( 1.0 - (np.abs( state["gap"]) / 12.00))
+        r = 3.6 * state['speed'] * ( 1.0 - (np.abs( state["gap"]) / 12.00))
         r /= 300. # normalize
 
         if self.penalize_actions_diff:
@@ -691,11 +657,6 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                                                     CURV_LOOK_AHEAD_VECTOR_SIZE)    # size of the vector downsampled
         obs = np.hstack([obs, LAC / CURV_NORMALIZATION_CONSTANT])
 
-        if self.use_target_speed:
-            target_speed_look_ahead = self.ref_lap.get_target_speed_segment(state['LapDist'],
-                                                                        TARG_SPEED_LOOK_AHEAD_DISTANCE,
-                                                                        TARG_SPEED_LOOK_AHEAD_VECTOR_SIZE)
-            obs = np.hstack([obs, target_speed_look_ahead * 3.6 / TOP_SPEED_MS])
 
         if history is None:
             history = self.states

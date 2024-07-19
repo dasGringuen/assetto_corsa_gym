@@ -24,7 +24,7 @@ class ModuleConfig:
         self.config.simulation_management_server_host_name = config.remote_machine_ip
 
         #
-        self.max_episode_steps = config.max_episode_py_time * config.ego_sampling_freq
+        self.max_episode_steps = self.config.max_episode_py_time * self.config.ego_sampling_freq
 
         this_file_path = os.path.abspath(os.path.dirname(__file__))
         self.ac_configs_path = os.path.join(this_file_path, "../AssettoCorsaConfigs")
@@ -32,22 +32,12 @@ class ModuleConfig:
     def make_env(self, output_path, ac_configs_path=None):
         if ac_configs_path is None:
             ac_configs_path = self.ac_configs_path
-        env = ac_env.AssettoCorsaEnv(self.config, # config
-                                    use_relative_actions=self.config.use_relative_actions,
-                                    ctrl_rate=self.config.ego_sampling_freq,
-                                    ac_configs_path=ac_configs_path,
-                                    enable_sensors=self.config.enable_sensors,
-                                    max_episode_steps=self.max_episode_steps,
-                                    enable_out_of_track_termination=self.config.enable_out_of_track_termination,
-                                    output_path=output_path, add_previous_obs_to_state=self.config.add_previous_obs_to_state,
-                                    enable_low_speed_termination=self.config.enable_low_speed_termination,
-                                    recover_car_on_done=self.config.recover_car_on_done,
+        env = ac_env.AssettoCorsaEnv(self.config,
+                                     output_path=output_path,
+                                     ac_configs_path=ac_configs_path,
+                                     max_episode_steps=self.max_episode_steps,
                                     )
-
-        #env.set_maneuver(self.task, torch_device)  # BRN, BRN_straight, BRN_sector_1, BRN_C01
-        self.max_episode_steps = env.max_episode_steps
-        self.env = TimeLimit(env, max_episode_steps=self.max_episode_steps)
-        return self.env
+        return TimeLimit(env, max_episode_steps=self.max_episode_steps)
 
     def get_config(self):
         return self.config
@@ -69,5 +59,4 @@ def make_ac_env(cfg, work_dir=None, ac_configs_path=None):
     if work_dir is None:
         work_dir = cfg.work_dir.as_posix()
     config = ModuleConfig(cfg.AssettoCorsa)
-    env = config.make_env(output_path=work_dir, ac_configs_path=ac_configs_path)
-    return env
+    return config.make_env(output_path=work_dir, ac_configs_path=ac_configs_path)

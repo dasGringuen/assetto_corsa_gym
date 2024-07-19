@@ -76,3 +76,4 @@ AssettoCorsa:
   use_ac_out_of_track: True
   add_previous_obs_to_state: True
   use_reference_line_in_reward: True
+  use_target_speed: False

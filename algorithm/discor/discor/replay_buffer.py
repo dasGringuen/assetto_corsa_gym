@@ -80,6 +80,7 @@ class ReplayBuffer:
 
         if self._nstep != 1:
             self._nstep_buffer = NStepBuffer(self._gamma, self._nstep)
+        logger.info(f"Replay buffer initialized for {self._memory_size} samples")
 
     def append(self, state, action, reward, next_state, terminated, episode_done=None):
         """

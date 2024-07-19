@@ -95,7 +95,7 @@ def main():
 
     # Initialize wandb logger
     if not config.disable_wandb:
-        wandb_logger = Logger(config)
+        wandb_logger = Logger(config.copy())
     else:
         wandb_logger = None
 
