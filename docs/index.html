@@ -49,10 +49,10 @@
 <div class="hr"></div>
 <div class="content">
     <div style="display: flex; justify-content: space-between; height: 320px; margin-bottom: -2.0em;">
-		<div class="figure" style="background-image: url(images/sim_render_small.jpg); flex: 1; background-size: cover;"></div>
-		<div class="figure" style="background-image: url(images/sim_tug2_small.jpg); flex: 1; background-size: cover;"></div>
-		<div class="figure" style="background-image: url(images/sim_tug_small.jpg); flex: 1; background-size: cover;"></div>
-		<div class="figure" style="background-image: url(images/ucsd_sim_small.jpg); flex: 1; background-size: cover;"></div>
+		<div class="figure" style="background-image: url(images/sim_render_small.jpg); flex: 1; background-size: cover; border-radius: 1rem;"></div>
+		<div class="figure" style="background-image: url(images/sim_tug2_small.jpg); flex: 1; background-size: cover; border-radius: 1rem;"></div>
+		<div class="figure" style="background-image: url(images/sim_tug_small.jpg); flex: 1; background-size: cover; border-radius: 1rem;"></div>
+		<div class="figure" style="background-image: url(images/ucsd_sim_small.jpg); flex: 1; background-size: cover; border-radius: 1rem;"></div>
     </div>
     <div style="display: flex; justify-content: space-between;">
         <div style="flex: 1; text-align: center; font-size: large;"><code>Render of Assetto Corsa</code></div>
@@ -67,14 +67,13 @@
     </div>
 
 	<div class="hr"></div>
-	<div class="content-video" style="margin-bottom: 32px">
-		<iframe width="560" height="315" src="https://www.youtube.com/embed/fPvcqnaUm2o" frameborder="0" allowfullscreen></iframe>
+	<div class="content-video" style="margin-bottom: 32px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+	  <iframe src="https://www.youtube.com/embed/kXFxczp2F9k?autoplay=1&mute=0&vq=hd1080" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 10px;"></iframe>
 	</div>
 	<p>
-		<span style="color:red; font-style:italic; font-weight:bold;">Fast lap.</span>
-		F317 Barcelona using SAC (Soft Actor-Critic) driving an F317 car on the Circuit de Barcelona-Catalunya in Assetto Corsa, showcasing how training with human data enhances self-learning capabilities and demonstrates improved precision and adaptability in autonomous racing.
+	  <span style="color:red; font-style:italic; font-weight:bold;">AssettoCorsa Gym.</span>
+	  Racing simulation platform using Assetto Corsa for autonomous driving. Includes a human driver dataset, and a comparison of different algorithms.
 	</p>
-
 
 	<div class="hr"></div>
 	<div>
@@ -85,31 +84,54 @@
 	</div>
 
 	<div class="hr"></div>
-	<div>
-		<h2>Videos</h2>
-		<h3>Recovering Manuevers</h3>
 
+	<h2>Videos</h2>
 
-		<div class="content-video-container" style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
-			<div class="content-video" style="flex: 1 1 calc(33.333% - 16px);">
-				<iframe width="100%" height="315" src="https://www.youtube.com/embed/gdiPCNSow6Y" frameborder="0" allowfullscreen></iframe>
-			</div>
-			<div class="content-video" style="flex: 1 1 calc(33.333% - 16px);">
-				<iframe width="100%" height="315" src="https://www.youtube.com/embed/YT20ixO3RtA" frameborder="0" allowfullscreen></iframe>
-			</div>
-			<div class="content-video" style="flex: 1 1 calc(33.333% - 16px);">
-				<iframe width="100%" height="315" src="https://www.youtube.com/embed/io2XUazC0Dg" frameborder="0" allowfullscreen></iframe>
-			</div>
-		</div>
+	<h3>SAC from scratch vs SAC from demonstrations</h3>
+	<div class="video-grid">
+		<video class="video-item" autoplay controls muted playsinline loop alt="example deadend video">
+			<source src="static/sac_without_demos.mp4" type="video/mp4" />
+		</video>
+		<video class="video-item" autoplay controls muted playsinline loop alt="example deadend video">
+			<source src="static/sac_with_demos.mp4" type="video/mp4" />
+		</video>
+		<p>
+			<span style="color:red; font-style:italic; font-weight:bold;">SAC from Scratch vs. Using Human Demonstrations.</span>
+			Increased Jitter in training SAC from Scratch (left), while human demonstrations make the controls smoother (right).
+		</p>
+	</div>
+
+	<h3>Recovering Manuevers</h3>
+	<div class="video-grid">
+		<video class="video-item" autoplay controls muted playsinline loop alt="example deadend video">
+			<source src="static/recover_1.mp4" type="video/mp4" />
+		</video>
+		<video class="video-item" autoplay controls muted playsinline loop alt="example deadend video">
+			<source src="static/recover_2.mp4" type="video/mp4" />
+		</video>
+		<video class="video-item" autoplay controls muted playsinline loop alt="example deadend video">
+			<source src="static/recover_3.mp4" type="video/mp4" />
+		</video>
+		<video class="video-item" autoplay controls muted playsinline loop alt="example deadend video">
+			<source src="static/recover_4.mp4" type="video/mp4" />
+		</video>
 
 		<p>
 			<span style="color:red; font-style:italic; font-weight:bold;">Recovering maneuver.</span>
 			Delays are added artificially to force the car to lose control and recover it.
 		</p>
-
 	</div>
 
 
+	<h3>Human data collection</h3>
+	<div class="video-grid">
+		<video class="video-item" autoplay controls muted playsinline loop alt="example deadend video">
+			<source src="static/sims_1.mp4" type="video/mp4" />
+		</video>
+		<video class="video-item" autoplay controls muted playsinline loop alt="example deadend video">
+			<source src="static/sims_2.mp4" type="video/mp4" />
+		</video>
+	</div>
 
 	<!-- <div class="hr"></div>
 	<p>

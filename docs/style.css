@@ -58,3 +58,20 @@ a.link-disabled {color: #ccc; pointer-events: none;}
 .spotlight {color: #ff9900;}
 .default-color {color: rgb(54, 54, 54) !important;}
 footer {background-color: #efeff3; width: 100%; margin-top: 32px; padding-top: 16px; padding-bottom: 16px; text-align: center;}
+/* General video styling */
+.video-container video {
+    height: auto;
+    border-radius: 1rem;
+}
+.video-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px; /* Adjust the gap as needed */
+}
+.video-item {
+    flex: 1 1 calc(50% - 16px); /* Adjust to leave space for gap */
+    max-width: calc(50% - 16px); /* Ensure videos do not exceed 50% of container width */
+    height: auto;
+    border-radius: 1rem;
+}
