@@ -175,7 +175,7 @@ Experiments and parameters are configured via `config.yml` and executed with `py
 @misc{remonda2024simulation,
   title={A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data}, 
   author={Adrian Remonda and Nicklas Hansen and Ayoub Raji and Nicola Musiu and Marko Bertogna and Eduardo E. Veas and Xiaolong Wang},
-  booktitle={38th Annual Conference on Neural Information Processing Systems (Submission)},
+  booktitle={arXiv},
   year={2024}
 }
 ```
