@@ -1,13 +1,13 @@
 <h1>Assetto Corsa Gym</span></h1>
 
 Official implementation of the paper:
-[A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data](https://dasgringuen.github.io/assetto_corsa_gym/)
+[A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data](https://assetto-corsa-gym.github.io/)
 
 <img src="docs/images/sim_render_small.jpg" width="24%"><img src="docs/images/sim_tug2_small.jpg" width="24%"><img src="docs/images/sim_tug_small.jpg" width="24%"><img src="docs/images/ucsd_sim_small.jpg" width="24%">
 
 
 
-[[Website]](https://dasgringuen.github.io/assetto_corsa_gym/)  [[Dataset]](https://huggingface.co/datasets/dasgringuen/assettoCorsaGym) [[ROS2 interface]](https://github.com/ayoubraji/assetto_corsa_ros2) 
+[[Website]](https://assetto-corsa-gym.github.io/)  [[Dataset]](https://huggingface.co/datasets/dasgringuen/assettoCorsaGym) [[ROS2 interface]](https://github.com/ayoubraji/assetto_corsa_ros2) 
  [[Paper]](https://arxiv.org/abs/2407.16680)
 
 ----
