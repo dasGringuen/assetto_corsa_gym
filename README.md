@@ -8,7 +8,7 @@ Official implementation of the paper:
 
 
 [[Website]](https://dasgringuen.github.io/assetto_corsa_gym/)  [[Dataset]](https://huggingface.co/datasets/dasgringuen/assettoCorsaGym) [[ROS2 interface]](https://github.com/ayoubraji/assetto_corsa_ros2) 
- <!-- [[Paper]]() -->
+ <!-- [[Paper]](https://arxiv.org/abs/2407.16680) -->
 
 ----
 
@@ -168,17 +168,6 @@ Experiments and parameters are configured via `config.yml` and executed with `py
   )
   ```
 
-----
-
-## Citation
-```
-@misc{remonda2024simulation,
-  title={A Simulation Benchmark for Autonomous Racing with Large-Scale Human Data}, 
-  author={Adrian Remonda and Nicklas Hansen and Ayoub Raji and Nicola Musiu and Marko Bertogna and Eduardo E. Veas and Xiaolong Wang},
-  booktitle={arXiv},
-  year={2024}
-}
-```
 
 ----
 
