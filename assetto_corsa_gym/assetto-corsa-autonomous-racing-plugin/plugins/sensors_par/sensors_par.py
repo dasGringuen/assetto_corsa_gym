@@ -1,11 +1,8 @@
-##############################################################
-# Assetto Corsa plugin for data extraction.
-# Author: Andrea Serafini
-#############################################################
-
 import json
 import pickle
 import sys
+import os
+import platform
 import time
 import traceback
 import datetime
@@ -19,6 +16,28 @@ ac_logger.setup_logger()
 import logging
 logger = logging.getLogger(__name__)
 logger.info("Starting sensors_par...")
+
+base_path = os.path.dirname(sys.executable)
+logger.info("Python path: {}".format(sys.executable))
+logger.info("Base path: {}".format(base_path))
+logger.info("Python version: {}".format(sys.version))
+logger.info("Architecture: {}".format(platform.architecture()))
+
+# Define the subdirectories to add
+subdirs = [
+    "system\\x642\\DLLs",
+    "system\\x64\\Lib"
+]
+
+# Combine the base path with each subdirectory
+for subdir in subdirs:
+    full_path = os.path.join(base_path, subdir)
+
+    # Check if the full path exists and raise an exception if it does not
+    if not os.path.exists(full_path):
+        raise FileNotFoundError("The specified path does not exist: {}".format(full_path))
+    else:
+        sys.path.insert(0, full_path)
 
 try:
     from structures import Car
@@ -36,12 +55,6 @@ try:
 except:
     logging.exception("An error occurred")
     raise
-
-# Adding external libraries (Socket)
-sys.path.insert(
-    0, "C:\\Program Files (x86)\\Steam\\steamapps\\common\\assettocorsa\\system\\x64\\DLLs")
-sys.path.insert(
-    0, "C:\\Program Files (x86)\\Steam\\steamapps\\common\\assettocorsa\\system\\x64\\Lib")
 
 try:
     import socket
