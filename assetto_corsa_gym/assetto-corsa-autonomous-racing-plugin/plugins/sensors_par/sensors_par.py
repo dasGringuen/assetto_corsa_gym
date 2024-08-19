@@ -25,7 +25,7 @@ logger.info("Architecture: {}".format(platform.architecture()))
 
 # Define the subdirectories to add
 subdirs = [
-    "system\\x642\\DLLs",
+    "system\\x64\\DLLs",
     "system\\x64\\Lib"
 ]
 
