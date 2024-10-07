@@ -150,7 +150,7 @@ Experiments and parameters are configured via `config.yml` and executed with `py
   # After cloning, delete the .git directory to free up space
   ```
 
-  Hugging Face is currently having some false positives in their dataset size reporting due to a security issue with pickle files importing numpy:
+  Hugging Face is currently having some false positives in their dataset checking due to a security issue with pickle files importing numpy:
 
   ```
     Detected Pickle imports:
