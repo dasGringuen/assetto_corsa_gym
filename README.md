@@ -139,7 +139,28 @@ Experiments and parameters are configured via `config.yml` and executed with `py
   - Monza: `monza`
   - Austria: `ks_red_bull_ring-layout_gp`
   - Oval: `indianapolis_sp`
-  - Silverstone: `ks_silverstone-gp`
+  - Silverstone: `ks_silverstone-gp`<br><br>
+
+
+
+- To download everything at once (120GB):
+
+  ```python
+  git clone https://huggingface.co/datasets/dasgringuen/assettoCorsaGym
+  # After cloning, delete the .git directory to free up space
+  ```
+
+  Hugging Face is currently having some false positives in their dataset size reporting due to a security issue with pickle files importing numpy:
+
+  ```
+    Detected Pickle imports:
+    - "numpy.core.multiarray.scalar"
+    - "numpy.core.multiarray._reconstruct"
+    - "numpy.dtype"
+    - "numpy.ndarray"
+  ```
+
+  Hugging Face flags these for security reasons. You can see more about this in the issue [here](https://github.com/dasGringuen/assetto_corsa_gym/issues/5). We plan to convert the files to a safer format like Parquet in the future.<br><br>
 
 
 - To download one track and car combination at a time, run the following replacing <track> and <car>:
@@ -154,20 +175,6 @@ Experiments and parameters are configured via `config.yml` and executed with `py
       allow_patterns="data_sets/<track>/<car>/*"
   )
   ```
-
-  Optionally, download everything at once (120GB):
-
-  ```python
-  from huggingface_hub import snapshot_download
-
-  snapshot_download(
-      repo_id="dasgringuen/assettoCorsaGym",
-      repo_type="dataset",
-      local_dir="AssettoCorsaGymDataSet",
-      allow_patterns="data_sets/*"
-  )
-  ```
-
 
 ----
 
