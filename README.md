@@ -150,19 +150,6 @@ Experiments and parameters are configured via `config.yml` and executed with `py
   # After cloning, delete the .git directory to free up space
   ```
 
-  Hugging Face is currently having some false positives in their dataset checking due to a security issue with pickle files importing numpy:
-
-  ```
-    Detected Pickle imports:
-    - "numpy.core.multiarray.scalar"
-    - "numpy.core.multiarray._reconstruct"
-    - "numpy.dtype"
-    - "numpy.ndarray"
-  ```
-
-  Hugging Face flags these for security reasons. You can see more about this in the issue [here](https://github.com/dasGringuen/assetto_corsa_gym/issues/5). We plan to convert the files to a safer format like Parquet in the future.<br><br>
-
-
 - To download one track and car combination at a time, run the following replacing <track> and <car>:
 
   ```python
@@ -175,6 +162,20 @@ Experiments and parameters are configured via `config.yml` and executed with `py
       allow_patterns="data_sets/<track>/<car>/*"
   )
   ```
+
+
+  Hugging Face is currently having some false positives in their dataset checking due to a security issue with pickle files importing numpy:
+
+  ```
+    Detected Pickle imports:
+    - "numpy.core.multiarray.scalar"
+    - "numpy.core.multiarray._reconstruct"
+    - "numpy.dtype"
+    - "numpy.ndarray"
+  ```
+
+  Hugging Face flags these for security reasons. You can see more about this in the issue [here](https://github.com/dasGringuen/assetto_corsa_gym/issues/5). We plan to convert the files to a safer format like Parquet in the future.<br><br>
+
 
 ----
 
