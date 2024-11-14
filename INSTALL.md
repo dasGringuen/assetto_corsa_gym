@@ -78,6 +78,15 @@ Install the following configurations from `assetto_corsa_gym\assetto-corsa-auton
       - Track Surface:              **Optimum**
       - Penalties:                  **on**
 
+6. ***(Optional) install the Dallara F317 Car***
+
+    - Download it from here (you need to be registered):
+
+        [RSR Formula 3 Download](https://www.overtake.gg/downloads/rsr-formula-3.8040/)
+
+    - Uncompress and place the files in the following directory:
+
+      ```C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\content```
 
 ---
 
