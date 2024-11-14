@@ -26,6 +26,9 @@ This repository contains all the necessary code to run the Gym interface for Ass
 
 We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) implementation.
 
+## *** Updates ***
+- Added example checkpoitns for the SAC policy for Monza and the GT3 car
+
 ## Source Code Tree:
 
 - **assetto_corsa_gym**
@@ -66,7 +69,9 @@ We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) imple
       ```
       conda create -n p309 python=3.9.13
       conda activate p309
-      pip install setuptools==65.5.0
+      pip install setuptools==65.5.0 "cython<3"
+      pip install "wheel<0.40.0"
+      python -m pip install pip==24.0
       pip install -r requirements.txt
       conda install pytorch==1.12.1 cudatoolkit=11.6 -c pytorch -c conda-forge
       ```
@@ -101,6 +106,12 @@ We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) imple
 ## Benchmarks
 Experiments and parameters are configured via `config.yml` and executed with `python train.py`. Optionally, a different config file can be specified using `python train.py config=<config_file>`. To enable logging to Weights and Biases, appropriate values should be set in the config file. Each parameter in the config file can be modified directly from the terminal using `<field>=<value>`. For instance, to change the car, use `AssettoCorsa.car=<car>`.
 
+  - **Example policy for Monza and the GT3 car**
+
+    The checkpoints are in the dataset (see below). The expected lap time is approximately 112.1 seconds.
+    ```
+    python train.py --test --load_path <path_to_dataset>\monza\bmw_z4_gt3\20241108_SAC\model\checkpoints\step_05400000 AssettoCorsa.track=monza AssettoCorsa.car=bmw_z4_gt3
+    ```
 
   - **Train from SAC from Scratch**
     - To train SAC from scratch in Barcelona/F317:

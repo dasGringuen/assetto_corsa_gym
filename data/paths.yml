@@ -124,6 +124,9 @@ ks_red_bull_ring-layout_gp:
 
 monza:
   bmw_z4_gt3:
+    # models
+    - {id: 20241108_SAC,                type: ai,     auto_shift: True,     ff: True,  data_type: pkl}
+    # humans
     - {id: 20240229_HC,                 type: human,  auto_shift: True,     ff: False, data_type: motec}
     - {id: 20240313_OP,                 type: human,  auto_shift: False,    ff: True,  data_type: motec}
     - {id: 20240325_WL,                 type: human,  auto_shift: False,    ff: True,  data_type: motec}

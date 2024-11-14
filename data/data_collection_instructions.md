@@ -20,6 +20,7 @@
     Note: The Steer Force Feedback channel is vital for telemetry. However, it is not recorded by the ACTI plugin. Since the aidMechanicalDamage channel is not needed, we repurpose it for recording the Steer Force Feedback.
 
 ### Assetto Corsa settings:
+- Challenge -> hotlap
 - Automatic gearbox:          as preferred
 - Ideal Racing line:          as preferred
 - Automatic clutch:           **enabled**
@@ -27,7 +28,7 @@
 - Traction control:           **off**
 - Stability control:          **off**
 - Mechanical damage:          **off**
-- Tyre blankets:              **off**
+- Tyre blankets:              **on**
 - ABS:                        **off**
 - Fuel consumption:           **off**
 - Tyre wear:                  **off**

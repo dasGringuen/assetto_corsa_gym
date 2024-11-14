@@ -56,6 +56,29 @@ Install the following configurations from `assetto_corsa_gym\assetto-corsa-auton
     - In `options -> video -> Display -> Framerate limit` set to **50fps**
     See `assetto_corsa_gym\assetto-corsa-autonomous-racing-plugin\plugins\sensors_par\config.py`
 
+
+    - Use Challenge -> hotlap
+    - Config the following:
+      - Automatic gearbox:          **on**
+      - Ideal Racing line:          **as preferred**
+      - Automatic clutch:           **enabled**
+      - Automatic throttle blip:    **disabled**
+      - Traction control:           **off**
+      - Stability control:          **off**
+      - Mechanical damage:          **off**
+      - Tyre blankets:              **on**
+      - ABS:                        **off**
+      - Fuel consumption:           **off**
+      - Tyre wear:                  **off**
+      - Slipstream effect:          **1x**
+      - Time of the day:            **10:00**
+      - Weather:                    **Mid Clear**
+      - Ambient Temp.:              **26**
+      - Time multiplier:            **1x**
+      - Track Surface:              **Optimum**
+      - Penalties:                  **on**
+
+
 ---
 
 ## Acknoledgements
