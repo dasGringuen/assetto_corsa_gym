@@ -27,7 +27,7 @@ This repository contains all the necessary code to run the Gym interface for Ass
 We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) implementation.
 
 ## *** Updates ***
-- Added example checkpoitns for the SAC policy for Monza and the GT3 car
+- Added example checkpoints for the SAC policy for Monza and the GT3 car
 
 ## Source Code Tree:
 
