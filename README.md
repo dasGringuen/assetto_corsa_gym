@@ -12,6 +12,17 @@ Official implementation of the paper:
 
 ----
 
+# To pull from remote
+
+```
+git remote add external-repo git@github.com:dasGringuen/assetto_corsa_gym.git # (already done) 
+git fetch external-repo
+git checkout main
+git pull external-repo main
+
+git push # to push to private repo
+```
+
 ## Overview
 Gym interfaces with Assetto Corsa for Autonomous Racing. This repository integrates the Assetto Corsa racing simulator with the OpenAI's Gym interface, providing a high-fidelity environment for developing and testing Autonomous Racing algorithms in realistic racing scenarios.
 
