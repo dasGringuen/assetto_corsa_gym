@@ -15,6 +15,7 @@ Official implementation of the paper:
 ## Overview
 Gym interfaces with Assetto Corsa for Autonomous Racing. This repository integrates the Assetto Corsa racing simulator with the OpenAI's Gym interface, providing a high-fidelity environment for developing and testing Autonomous Racing algorithms in realistic racing scenarios.
 
+
 Features:
 - High-Fidelity Simulation: Realistic car dynamics and track environments.
 - Customizable Scenarios: Various cars, tracks, and weather conditions.
