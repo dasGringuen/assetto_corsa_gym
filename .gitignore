@@ -50,6 +50,9 @@ docs/_build/
 #
 *.zip
 
+# macOS
+.DS_Store
+
 # mujoco
 MUJOCO_LOG.TXT
 

@@ -24,7 +24,7 @@ git push # to push to private repo
 ```
 
 ## Overview
-Gym interfaces with Assetto Corsa for Autonomous Racing. This repository integrates the Assetto Corsa racing simulator with the OpenAI's Gym interface, providing a high-fidelity environment for developing and testing Autonomous Racing algorithms in realistic racing scenarios.
+Gym interfaces with AssettoCorsa for Autonomous Racing. This repository integrates the AssettoCorsa racing simulator with the OpenAI's Gym interface, providing a high-fidelity environment for developing and testing Autonomous Racing algorithms in realistic racing scenarios.
 
 
 Features:
@@ -37,9 +37,27 @@ Features:
 This repository contains all the necessary code to run the Gym interface for Assetto Corsa and RL benchmarks. For the ROS2 interface, refer to [ROS2 interface](https://github.com/ayoubraji/assetto_corsa_ros2)
 
 We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) implementation.
+## **Updates**  
 
-## *** Updates ***
-- Added example checkpoints for the SAC policy for Monza and the GT3 car
+### **Feb 2025: Support for Alternate Python Interpreters**  
+- Now supports the use of **newer Python interpreter versions** on the plugin side.  
+
+### **Feb 2025: Screen Capture Support**  
+- Added support for retrieving images from the **OpenAI Gym** interface.  
+- Images can be saved directly to the hard drive.  
+- Implemented a **dual-buffer shared memory mechanism** to minimize read/write latency.  
+- Color and gray scale images support.
+- See the usage examples and installation instructions below.  
+
+<p align="center">
+    <img src="docs/teaser_images.png" alt="Teaser Image" height="200">
+    <img src="docs/teaser_images_bgr.png" alt="Teaser Image" height="200">
+</p>
+
+
+### **Dic 2024: Checkpoints**  
+- Added example checkpoints for the **SAC policy** for **Monza** and the **GT3 car**.  
+
 
 ## Source Code Tree:
 
@@ -153,6 +171,27 @@ Experiments and parameters are configured via `config.yml` and executed with `py
     ```
     python train.py load_offline_data=True Agent.use_offline_buffer=True dataset_path=<path_to_dataset>
     ```
+
+### Screen Capture Support  
+
+#### How to Use:  
+1. Complete the required installation steps and dependencies (see [`INSTALL.md`](INSTALL.md)).  
+
+2. Install additional dependencies in your **current environment (Python 3.9+)**:
+`pip install pygetwindow opencv-python`
+3. Set the resolution in Assetto Corsa to **640x480**.  
+4. In `<AC_installation_folder>/apps/python/sensor_par/config.py`, set `screen_capture_enable = True`.  
+   - *(See other available options in this file.)*  
+5. Enable image support in `config.yml` and ensure the width and height match `sensor_par/config.py`:  `screen_capture_enable: True`
+
+6. **To save images to the hard drive** (tested up to **25Hz**), set `screen_capture_save_to_disk = True` in `sensor_par/config.py`.
+The images can be found in `<AC_installation_folder>`.
+
+7. Run `test_gym_images.ipynb`
+
+<img src="docs/teaser_images.png" alt="Teaser Image" width="400">
+
+
 
 
 ## Download Datasets

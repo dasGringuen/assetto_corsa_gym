@@ -8,6 +8,8 @@ import os
 import pygame
 
 from AssettoCorsaEnv.car_control import Controls
+import AssettoCorsaPlugin.plugins.sensors_par.screen_capture as screen_capture
+
 logger = logging.getLogger(__name__)
 
 MAX_MSG_SIZE = 2**18
@@ -65,6 +67,14 @@ class Client():
         self.socket = None
         self.controls = DriverControls(self.vjoy_executed_by_server)
         self.record_controls_from_client = config.record_controls_from_client
+        self.screen_capture_enable = self.config.screen_capture_enable
+        self.camera = None
+        self.current_image = None
+
+        if self.screen_capture_enable:
+            self.camera = screen_capture.GrabberSharedMemoryDualBuffer(self.config.final_image_width,
+                                                                       self.config.final_image_height,
+                                                                       self.config.color_mode)
 
         if self.record_controls_from_client:
             pygame.display.init()
@@ -108,6 +118,12 @@ class Client():
                 continue
         self.get_servers_input()
 
+    def get_current_image(self):
+        if self.screen_capture_enable:
+            return self.current_image
+        else:
+            return None
+
     def get_servers_input(self):
         if not self.socket:
             return
@@ -125,6 +141,11 @@ class Client():
                     logger.info("Server identified")
                 else:
                     self.state.parse_server_str(data)
+                    # get current image from the server immediately after receiving the state
+                    # to keep the image and state in sync
+                    if self.screen_capture_enable:
+                        _, _, img_array = self.camera.get_active_image()
+                        self.current_image = img_array
                 break
             except socket.timeout:
                 continue
