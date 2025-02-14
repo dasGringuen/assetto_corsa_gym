@@ -73,7 +73,8 @@ class Client():
 
         if self.screen_capture_enable:
             self.camera = screen_capture.GrabberSharedMemoryDualBuffer(self.config.final_image_width,
-                                                                       self.config.final_image_height)
+                                                                       self.config.final_image_height,
+                                                                       self.config.color_mode)
 
         if self.record_controls_from_client:
             pygame.display.init()

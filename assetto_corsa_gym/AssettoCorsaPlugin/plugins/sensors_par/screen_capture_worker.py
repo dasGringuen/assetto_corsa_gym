@@ -21,7 +21,8 @@ except Exception as e:
     raise e
 
 def screen_capture_worker():
-    shm_buffer = screen_capture.GrabberSharedMemoryDualBuffer(config.final_image_width, config.final_image_height)
+    shm_buffer = screen_capture.GrabberSharedMemoryDualBuffer(config.final_image_width, config.final_image_height,
+                                                              color_mode=config.color_mode)
     EVENT_ALL_ACCESS = 0x1F0003
     hTriggerImageCapture = win32event.OpenEvent(EVENT_ALL_ACCESS, False, config.trigger_image_capture_event_name)
 
@@ -42,6 +43,7 @@ def screen_capture_worker():
                                                                         save_to_disk=config.screen_capture_save_to_disk,
                                                                         save_path=config.screen_capture_save_path,
                                                                         verbose=config.screen_capture_verbose,
+                                                                        color_mode=config.color_mode,
                                                                         show_original=False)
                 if image is None:
                     logger.error("Failed to capture Assetto Corsa rendering.")

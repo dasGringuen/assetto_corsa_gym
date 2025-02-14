@@ -82,3 +82,4 @@ AssettoCorsa:
   # AC configured Using 640x480
   final_image_width: 320      # Final image width in pixels
   final_image_height: 240     # Final image height in pixels
+  color_mode: "gray"           # Options: "gray" or "bgr"

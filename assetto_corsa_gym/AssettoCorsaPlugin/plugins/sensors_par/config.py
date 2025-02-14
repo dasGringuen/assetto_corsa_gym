@@ -43,6 +43,7 @@ class Config(object):
         self.screen_capture_verbose = False
         self.relocate_screen = True # relocate screen to 0,0 if True
         self.trigger_image_capture_event_name = "Local\\TriggerImageCapture"
+        self.color_mode = "gray"  # Options: "gray" or "bgr"
 
         if self.vjoy_executed_by_server:
             assert self.sampling_freq == 100, "vJoy is executed by the server. The sampling frequency must be 100 Hz to avoid lagging."

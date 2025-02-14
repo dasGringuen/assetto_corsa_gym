@@ -606,6 +606,9 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                 assert self.config.final_image_width == self.ac_mod_config["final_image_width"],\
                     "Config and AC Mod config do not match for final_image_width. Got {} and {}".format(self.config.final_image_width,
                                                                                                         self.ac_mod_config["final_image_width"])
+                assert self.config.color_mode == self.ac_mod_config["color_mode"], \
+                    "Config and AC Mod config do not match for color_mode. Got {} and {}".format(self.config.color_mode,
+                                                                                                  self.ac_mod_config["color_mode"])
 
             assert self.config.ego_sampling_freq == self.ac_mod_config["ego_sampling_freq"], "Ego sampling frequency mismatch"
             assert self.static_info["TrackFullName"] == self.track_name, f"Track name mismatch. Running: {self.static_info['TrackFullName']} Configured: {self.track_name}"

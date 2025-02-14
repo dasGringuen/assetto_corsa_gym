@@ -34,9 +34,14 @@ We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) imple
 - Added support for retrieving images from the **OpenAI Gym** interface.  
 - Images can be saved directly to the hard drive.  
 - Implemented a **dual-buffer shared memory mechanism** to minimize read/write latency.  
+- Color and gray scale images support.
 - See the usage examples and installation instructions below.  
 
-<img src="docs/teaser_images.png" alt="Teaser Image" width="400">  
+<p align="center">
+    <img src="docs/teaser_images.png" alt="Teaser Image" height="200">
+    <img src="docs/teaser_images_bgr.png" alt="Teaser Image" height="200">
+</p>
+
 
 ### **Dic 2024: Checkpoints**  
 - Added example checkpoints for the **SAC policy** for **Monza** and the **GT3 car**.  
