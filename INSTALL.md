@@ -1,8 +1,6 @@
-# **Assetto Corsa Gym**  
+<h1>Assetto Corsa Gym</span></h1>
 
-**Plug-in Installation Instructions**  
-
----
+Plug-in installation instructions
 
 ## **1. Assetto Corsa Plugin Installation**  
 
@@ -215,8 +213,8 @@ C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\captures
 ---
 ## **Acknowledgments**  
 
-- **Adrian Remonda** (TU Graz)  
-- **Francesco Gatti** (TII EuroRacing - Hipert)  
-- **Andrea Serafini** (TII EuroRacing - Unimore)  
-- **Francesco Moretti** (TII EuroRacing - Unimore)  
-- **Ayoub Raji** (TII EuroRacing - Unimore)  
+- Adrian Remonda (TU Graz)
+- Francesco Gatti (TII EuroRacing - Hipert)
+- Andrea Serafini (TII EuroRacing - Unimore)
+- Francesco Moretti (TII EuroRacing - Unimore)
+- Ayoub Raji (TII EuroRacing - Unimore)
