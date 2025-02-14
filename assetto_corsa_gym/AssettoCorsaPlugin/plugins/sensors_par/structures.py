@@ -159,7 +159,7 @@ class StaticInfo(dict):
         self.car_id = car_id
         self.done_static_info = False
 
-    # The static car's data should be in content/cars/<car_name>/ui/ui_car.json
+    # The static car's data should be inserted in content/cars/<car_name>/ui/ui_car.json file
     def collect_static_info(self):
         name = ac.getCarName(self.car_id)
         self["TrackName"] = ac.getTrackName(self.car_id)
@@ -176,13 +176,20 @@ class StaticInfo(dict):
         self["penaltiesEnabled"] = info.static.penaltiesEnabled
 
         # Front left and right, rear right tires
+        self['TyreContactPoint_FL'] = ac.getCarState(self.car_id, acsys.CS.TyreContactPoint, acsys.WHEELS.FL)
+        self['TyreContactPoint_FR'] = ac.getCarState(self.car_id, acsys.CS.TyreContactPoint, acsys.WHEELS.FR)
+        self['TyreContactPoint_RL'] = ac.getCarState(self.car_id, acsys.CS.TyreContactPoint, acsys.WHEELS.RL)
+        self['TyreContactPoint_RR'] = ac.getCarState(self.car_id, acsys.CS.TyreContactPoint, acsys.WHEELS.RR)
+
         fl                      = ac.getCarState(self.car_id, acsys.CS.TyreContactPoint, acsys.WHEELS.FL)
         rl                      = ac.getCarState(self.car_id, acsys.CS.TyreContactPoint, acsys.WHEELS.RL)
         rr                      = ac.getCarState(self.car_id, acsys.CS.TyreContactPoint, acsys.WHEELS.RR)
 
         self['CAR_WHEEL_R']     = ac.getCarState(self.car_id, acsys.CS.TyreRadius)
-        self['CAR_TRACK']       = math.sqrt((rr[0] - rl[0])**2 + (rr[1] - rl[1])**2 + (rr[2] - rl[2])**2)
+        self['CAR_TRACK']       = math.sqrt((rr[0] - rl[0])**2 + (rr[1] - rl[1])**2 + (rr[2] - rl[2])**2) # car width
         self['CAR_WHEELBASE']   = math.sqrt((fl[0] - rl[0])**2 + (fl[1] - rl[1])**2 + (fl[2] - rl[2])**2)
+
+        self['WorldPosition'] = ac.getCarState(self.car_id, acsys.CS.WorldPosition)
 
 
         # The following block works only if the static car info is included as explained above

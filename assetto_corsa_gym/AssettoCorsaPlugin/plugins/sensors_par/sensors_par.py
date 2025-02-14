@@ -52,6 +52,7 @@ try:
         controls = Controls()
     else:
         controls = None
+    import alternative_python
 except:
     logging.exception("An error occurred")
     raise
@@ -68,6 +69,7 @@ car_export = str()
 telemetry = Telemetry()
 
 DONE_STATIC_INFO = False
+alternative_interpreter = None
 
 def reset_car():
     ac.ext_resetCar()
@@ -161,7 +163,7 @@ def simulation_management_server_task():
 # Not all the tracks are saved equal in AC, so it can retrieve wrong info
 # about the track. (Tested on track "Magione")
 def acMain(ac_version):
-    global car, track, static_info, opponents, ego_server, telemetry, config, controls
+    global car, track, static_info, opponents, ego_server, telemetry, config, controls, alternative_interpreter
 
     #Only for specific configurations of the track
     conf = ac.getTrackConfiguration(0)
@@ -198,14 +200,7 @@ def acMain(ac_version):
         logger.error()
         raise
 
-    # # Starting ego car task
-    # try:
-    #     t = threading.Thread(target=ego_server_task)
-    #     t.daemon = True
-    #     t.start()
-    # except:
-    #     logger.error()
-    #     raise
+
 
     # Starting opponents task
     try:
@@ -229,12 +224,20 @@ def acMain(ac_version):
         logger.error()
         raise
 
+    # Starting screen capture worker in a new process and Python interpreter
+    # using a newer version than default in AC (Python3.3)
+    if config.enable_alternative_python_interpreter:
+        alternative_interpreter = alternative_python.ProducerSpawner(config.screen_capture_worker,
+                                                                     config.config_python_executable,
+                                                                     config.config_python_env_name)
     return "sensors_par"
 
 def acShutdown():
-    #global controls
+    global controls, alternative_interpreter
     if controls:
         controls.close()
+    if alternative_interpreter:
+        alternative_interpreter.close()
     logger.info("[MAIN] Stopped.")
 
 # This constantly updates with dynamic car info
@@ -272,9 +275,3 @@ def acUpdate(deltaT):
 
     # call ego server tick
     ego_server.tick()
-
-    # car.update(track)
-    # car_export = car.export()
-
-    # if telemetry:
-    #     telemetry.step(eval(car_export))

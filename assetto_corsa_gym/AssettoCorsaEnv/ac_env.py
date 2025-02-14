@@ -599,6 +599,14 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             for i in self.ac_mod_config:
                 logger.info(f"{i}: {self.ac_mod_config[i]}")
 
+            if self.config.screen_capture_enable:
+                assert self.config.final_image_height == self.ac_mod_config["final_image_height"],\
+                    "Config and AC Mod config do not match for final_image_height. Got {} and {}".format(self.config.final_image_height,
+                                                                                                        self.ac_mod_config["final_image_height"])
+                assert self.config.final_image_width == self.ac_mod_config["final_image_width"],\
+                    "Config and AC Mod config do not match for final_image_width. Got {} and {}".format(self.config.final_image_width,
+                                                                                                        self.ac_mod_config["final_image_width"])
+
             assert self.config.ego_sampling_freq == self.ac_mod_config["ego_sampling_freq"], "Ego sampling frequency mismatch"
             assert self.static_info["TrackFullName"] == self.track_name, f"Track name mismatch. Running: {self.static_info['TrackFullName']} Configured: {self.track_name}"
             assert self.static_info["CarName"] == self.car_name, f"Track name mismatch. Running: {self.static_info['CarName']} Configured: {self.car_name}"
@@ -631,6 +639,9 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         ep_stats = self.end_of_episode_stats()
         self.client.close()
         return ep_stats
+
+    def get_current_image(self):
+        return self.client.get_current_image()
 
     def get_obs(self, state, history=None):
         """

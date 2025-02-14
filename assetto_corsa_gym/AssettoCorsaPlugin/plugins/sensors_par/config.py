@@ -18,6 +18,32 @@ class Config(object):
         self.enable_profiler = False
         self.vjoy_executed_by_server = False
 
+        # Alternative python interpreter
+        self.enable_alternative_python_interpreter = True
+        # config_python_env_name: Name of the Anaconda environment for constructing the path (default: "p309").
+        self.config_python_env_name = "p309"
+        # config_python_executable: If provided, uses this path; if None, builds it as:
+        #   "<user_home>\AppData\Local\anaconda3\envs\<env_name>\python.exe"
+        self.config_python_executable = None
+        self.screen_capture_worker = "screen_capture_worker.py"
+
+        # signal events
+        self.ego_sampling_freq_event_name = "Local\\EgoSamplingFreqEvent"
+
+        #
+        # Camera capture configuration
+        #
+        self.screen_capture_enable = False
+        # This should be a multiple of the resolution set in Assetto Corsa to avoid cropping and padding
+        self.final_image_width = 640 // 2       # 320 Final image width in pixels
+        self.final_image_height = 480  // 2     # 240 Final image height in pixels
+        self.screen_capture_freq = 25 # in Hz
+        self.screen_capture_save_to_disk = False
+        self.screen_capture_save_path = "captures"  # relative to the AssettoCorsa root folder
+        self.screen_capture_verbose = False
+        self.relocate_screen = True # relocate screen to 0,0 if True
+        self.trigger_image_capture_event_name = "Local\\TriggerImageCapture"
+
         if self.vjoy_executed_by_server:
             assert self.sampling_freq == 100, "vJoy is executed by the server. The sampling frequency must be 100 Hz to avoid lagging."
         else:
