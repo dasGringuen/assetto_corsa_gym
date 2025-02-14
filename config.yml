@@ -77,3 +77,8 @@ AssettoCorsa:
   add_previous_obs_to_state: True
   use_reference_line_in_reward: True
   use_target_speed: False
+  screen_capture_enable: False
+  # This should be a multiple of the resolution set in Assetto Corsa to avoid cropping and padding
+  # AC configured Using 640x480
+  final_image_width: 320      # Final image width in pixels
+  final_image_height: 240     # Final image height in pixels
