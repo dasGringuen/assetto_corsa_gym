@@ -251,8 +251,6 @@ class DriverControls(dict):
 
         self.set_defaults()
 
-        #
-        self.scale_steer = 0.6 # an input of 1 will be scaled to this value
         if not self.vjoy_executed_by_server:
             logger.warning("Controls will be executed locally and not by the server")
             self.local_controls = Controls()
@@ -270,7 +268,7 @@ class DriverControls(dict):
 
     def set_controls(self, steer, acc, brake, enable_clutch=False, clutch=-1,
                      enable_gear_shift=False, shift_up=False, shift_down=False):
-        self["steer"] = steer * self.scale_steer
+        self["steer"] = steer
         self["acc"] = acc
         self["brake"] = brake
         self["enable_clutch"] = int(enable_clutch)

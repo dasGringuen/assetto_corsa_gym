@@ -4,6 +4,7 @@ import pandas as pd
 import pickle
 from pathlib import Path
 import yaml
+from collections import defaultdict
 
 import logging
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ def seconds_to_mm_ss_mmm(seconds):
     return f"{minutes:2d}:{remaining_seconds:06.3f}"
 
 class DataLoader():
-    def __init__(self, env, data_set_path, steer_map_file, brake_map_file):
+    def __init__(self, env, data_set_path, log_steer_ratios=False):
         self.env = env
         self.trajectories_paths =  sorted( glob.glob(data_set_path  + '/*.pkl' ) )
         self.trajectories_count = len(self.trajectories_paths)
@@ -30,15 +31,34 @@ class DataLoader():
         self.trajectory_number = 0
         self.current_step = 0
         self.prev_abs_actions = None
+        self.log_steer_ratios = log_steer_ratios
 
+        # load the brake and steer maps from the env config!!! -> check if using another car
+        brake_map_file = Path(env.ac_configs_path) / "cars" / env.config.car / 'brake_map.csv'
         self.brake_map = BrakeMap.load(brake_map_file)
-        self.steer_max = pd.read_csv(steer_map_file).values[1,1]
+        self.steer_max = env.max_steer_deg
 
     def get_actions_from_state(self, state):
         steer = state["steerAngle"] / self.steer_max
         pedal = (state["accStatus"] - 0.5) * 2  # 0,1 -> -1,1
         brake = self.brake_map.get_x(state["brakeStatus"]).item() # map
         return np.array( [steer, pedal, brake] )
+
+    def compute_steer_ratio_statistics(self, trajectory):
+        # trajectory is a list of dictionaries
+        lap_data = defaultdict(list)
+
+        for entry in trajectory:
+            lap_data[entry["LapCount"]].append(entry["steerAngle"])
+
+        # Process each lap
+        for lap, steer_angles in lap_data.items():
+            steer_angles = np.array(steer_angles)  # Convert to NumPy array
+            steer_ratio_change = np.diff(steer_angles) * self.env.config.ego_sampling_freq
+            logger.info(f"Lap: {lap} steer ratio change: {np.max(np.abs(steer_ratio_change)):8.2f}deg/s max: {np.max(np.abs(steer_angles)):8.2f}deg")
+            #if np.max(np.abs(steer_ratio_change)) > 1500:
+                # to debug outliers
+                # breakpoint()#pd.DataFrame({"steerAngle": steer_angles, "steer_ratio_change": np.append(steer_ratio_change, np.nan)}).to_csv("steer_ratio_data.csv", index=False)
 
     def load_next_trajectory(self):
         load_path = self.trajectories_paths[self.trajectory_number]
@@ -51,6 +71,10 @@ class DataLoader():
                 #print(f"Loaded trajectory number: {self.trajectory_number}/{self.trajectories_count - 1} with len: {len(self.trajectory)}")
                 self.trajectory_number += 1
                 self.current_step = 0
+                # print steer ratios
+                if self.log_steer_ratios:
+                    self.compute_steer_ratio_statistics(self.trajectory)
+
         except Exception:
             logger.error(f"Error loading trajectory: {load_path}")
             raise

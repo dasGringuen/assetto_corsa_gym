@@ -283,12 +283,9 @@ class Agent:
         )
 
     def load_pre_train_data(self, trajs_path, env):
-        brake_map_file = Path(self._env.ac_configs_path) / "cars" / self._env.config.car / 'brake_map.csv'
-        steer_map_file = Path(self._env.ac_configs_path) / "cars" / self._env.config.car / 'steer_map.csv'
-
         total_added_episodes = 0
 
-        env_data = DataLoader(env, trajs_path, steer_map_file, brake_map_file)
+        env_data = DataLoader(env, trajs_path)
         for ep in tqdm(range(env_data.trajectories_count)[:]):
             state = env_data.reset()
 

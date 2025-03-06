@@ -10,6 +10,7 @@ from gym import utils as gym_utils
 from datetime import datetime
 import time
 import yaml
+from pathlib import Path
 
 from AssettoCorsaEnv.ac_client import Client
 from AssettoCorsaEnv.track import Track
@@ -223,6 +224,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.enable_out_of_track_termination = self.config.enable_out_of_track_termination
         self.add_previous_obs_to_state = self.config.add_previous_obs_to_state
         self.send_reset_at_start = self.config.send_reset_at_start
+        self.max_steer_rate = self.config.max_steer_rate
 
         # from the config
         self.use_ac_out_of_track = self.config.use_ac_out_of_track
@@ -285,28 +287,34 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         #
         # for gym
         #
+        # Define physical and simulator parameters for each channel.
+        steer_map_file = Path(self.cars_paths) / self.car_name / 'steer_map.csv'
+        self.max_steer_deg = pd.read_csv(steer_map_file).values[1,1]
+        self.norm_steer_at_max = pd.read_csv(steer_map_file).values[1,0]
 
-        # In the pedal
-        #   The low bound is the falling edge of the pedal
-        # In the brake:
-        #    The low bound is the brake release
-        #    The upper bound is the brake press;
-        self.controls_rate_limit = np.array([[-600/180, 600/180],
-                                             [-1200/100, 1200/100], # the first is the falling edge of the pedal -> checked both
-                                             [-1200/100, 1200/100],  # the first is the brake release; the second the brake press;
+        # Original controls_rate_limit (in deg/s scaled per time step)
+        self.controls_rate_limit = np.array([[-self.max_steer_rate, self.max_steer_rate],
+                                              [-1200/100, 1200/100],  # pedal: (falling edge)
+                                              [-1200/100, 1200/100],  # brake: (release/press)
                                              ]) * (1/self.ctrl_rate)
 
 
-        # to artificially limit the controls
-        self.controls_min_values = np.array([-1.0,  -1.0,  -1.0])
-        self.controls_max_values = np.array([ 1.0,   1.0,   1.0])
-        self.limit_controls = False
-        if self.limit_controls:
-            self.controls_max_values = np.array([ 1.0,   0.5,  -1.0])
+        # Conversion factor (deg per normalized unit) for steering.
+        self.steering_scale_factor = self.max_steer_deg / self.norm_steer_at_max
+        # For pedal and brake: full range is already [0,1].
+        # Create a per-channel scale factor vector.
+        self.controls_scale_factor = np.array([self.steering_scale_factor, 1.0, 1.0])
+        # Adjust the rate-limit vector per channel (element-wise division along the second axis)
+        self.adjusted_controls_rate_limit = self.controls_rate_limit / self.controls_scale_factor[:, np.newaxis]
 
-        # actions space is always -1/1 for most algorithms
+        # Now, set the absolute limits for the simulator.
+        # For steering, use the normalized value corresponding to max steering.
+        self.controls_min_values = np.array([-self.norm_steer_at_max, -1.0, -1.0])
+        self.controls_max_values = np.array([ self.norm_steer_at_max,  1.0,  1.0])
+
+        # actions space is always -1 to 1 for most algorithms
         self.action_dim = 3
-        self.action_space = Box(low=np.array([-1.0,  -1.0,  -1.0]), high=np.array([1.0,  1.0,  1.0]))
+        self.action_space = Box(low=np.array([-1.0, -1.0, -1.0]), high=np.array([1.0, 1.0, 1.0]))
 
         state_dim = len( self.obs_enabled_channels )
         if self.enable_sensors:
@@ -373,24 +381,20 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
     def preprocess_actions(self, actions, current_actions):
         if self.use_relative_actions:
-            max_delta_action = Box(low=self.controls_rate_limit[:,0], high=self.controls_rate_limit[:,1])
-            current_actions += actions * max_delta_action.high
+            # Fully vectorized update: scale each action by the adjusted per-channel rate limit.
+            new_actions = current_actions + actions * self.adjusted_controls_rate_limit[:, 1]
         else:
-            current_actions = actions
-
-        # clip to absolute limits
-        return np.clip(current_actions, self.controls_min_values, self.controls_max_values)
+            new_actions = actions
+        return np.clip(new_actions, self.controls_min_values, self.controls_max_values)
 
     def inverse_preprocess_actions(self, prev_abs_actions, current_abs_actions):
         if self.use_relative_actions:
-            max_delta_action = Box(low=self.controls_rate_limit[:,0], high=self.controls_rate_limit[:,1])
-            actions = current_abs_actions - prev_abs_actions
-            actions = actions / max_delta_action.high
-            actions = np.clip(actions, -1., 1.)
-            return actions
+            # Use the adjusted rate limit's upper bound for each channel.
+            max_delta = self.adjusted_controls_rate_limit[:, 1]
+            actions = (current_abs_actions - prev_abs_actions) / max_delta
+            return np.clip(actions, -1.0, 1.0)
         else:
-            actions = current_abs_actions
-            return np.clip(actions, self.controls_min_values, self.controls_max_values)
+            return np.clip(current_abs_actions, self.controls_min_values, self.controls_max_values)
 
     def set_actions(self, actions):
         """
@@ -406,7 +410,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.client.controls.set_controls(steer=self.actions[0], acc=self.actions[1], brake=self.actions[2])
         self.client.respond_to_server()
 
-    def step(self, actions=None):
+    def step(self, action=None):
         """
         If actions is None, the the policy should set the actions before by calling set_actions
 
@@ -415,8 +419,8 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.ep_steps += 1
         self.total_steps += 1
 
-        if actions is not None:
-            self.set_actions(actions)
+        if action is not None:
+            self.set_actions(action)
 
         state = self.client.step_sim()
         state["timestamp_env"] = time.perf_counter()
