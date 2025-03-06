@@ -5,10 +5,9 @@ import time
 import pandas as pd
 import numpy as np
 import os
-import pygame
-
+from AssettoCorsaEnv.pygame_joystick_handler import JoystickHandler
 from AssettoCorsaEnv.car_control import Controls
-import AssettoCorsaPlugin.plugins.sensors_par.screen_capture as screen_capture
+import AssettoCorsaPlugin.plugins.sensors_par.dual_buffer as dual_buffer
 
 logger = logging.getLogger(__name__)
 
@@ -67,28 +66,21 @@ class Client():
         self.socket = None
         self.controls = DriverControls(self.vjoy_executed_by_server)
         self.record_controls_from_client = config.record_controls_from_client
+
+        # Joystick handler (only used if needed)
+        self.joystick_handler = None
         self.screen_capture_enable = self.config.screen_capture_enable
         self.camera = None
         self.current_image = None
 
         if self.screen_capture_enable:
-            self.camera = screen_capture.GrabberSharedMemoryDualBuffer(self.config.final_image_width,
+            self.camera = dual_buffer.GrabberSharedMemoryDualBuffer(self.config.final_image_width,
                                                                        self.config.final_image_height,
                                                                        self.config.color_mode)
 
         if self.record_controls_from_client:
-            pygame.display.init()
-            pygame.joystick.init()
-            logger.info(pygame.joystick.get_count())
-            self.joystick = pygame.joystick.Joystick(0)
-            self.joystick.init()
-            logger.info(self.joystick.get_init())
-            logger.info(self.joystick.get_id())
-            logger.info(self.joystick.get_name())
-            logger.info(self.joystick.get_numaxes())
-            logger.info(self.joystick.get_numballs())
-            logger.info(self.joystick.get_numbuttons())
-            logger.info(self.joystick.get_numhats())
+            self.joystick_handler = JoystickHandler()
+            self.joystick_handler.initialize()
 
     def reply_to_server(self, msg):
         if not self.socket:
@@ -182,11 +174,8 @@ class Client():
         self.get_servers_input()
         state = self.state.copy()
 
-        if self.record_controls_from_client:
-            pygame.event.pump()
-            state["steerAngleManual"] = self.joystick.get_axis(0)
-            state["accStatusManual"] = self.joystick.get_axis(1)
-            state["brakeStatusManual"] = self.joystick.get_axis(2)
+        if self.record_controls_from_client and self.joystick_handler and self.joystick_handler.is_initialized():
+            state.update(self.joystick_handler.read_inputs())
         return state
 
     def export_track_and_racing_line(self, output_path="."):
