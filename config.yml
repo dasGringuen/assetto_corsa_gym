@@ -71,6 +71,7 @@ AssettoCorsa:
   enable_task_id_in_obs: False
   penalize_actions_diff: False
   penalize_actions_diff_coef: 0.1
+  max_steer_rate: 900.0   # steering: deg/s
   track: "ks_barcelona-layout_gp"  # monza ks_barcelona-layout_gp ks_red_bull_ring-layout_gp, indianapolis_sp, ks_silverstone-gp
   car: "dallara_f317"              # dallara_f317, ks_mazda_miata, bmw_z4_gt3
   use_ac_out_of_track: True
