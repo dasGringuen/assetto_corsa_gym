@@ -821,6 +821,12 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         states = self.states
         return pd.DataFrame(states)
 
+    def load_history(self, file_path, format='parquet'):
+        if format == 'parquet':
+            return pd.read_parquet(file_path, engine="pyarrow").to_dict(orient="records")
+        else:
+            raise NotImplementedError
+
     def set_track(self, track_name):
         logger.info(f"Setting track {track_name}")
         self.track_config = self.tracks_config[track_name]
