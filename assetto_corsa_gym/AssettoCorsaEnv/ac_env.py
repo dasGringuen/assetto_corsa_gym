@@ -10,6 +10,7 @@ from gym import utils as gym_utils
 from datetime import datetime
 import time
 import yaml
+import json
 from pathlib import Path
 
 from AssettoCorsaEnv.ac_client import Client
@@ -744,19 +745,20 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         logger.info(f"reward: {state['reward']}")
 
     def end_of_episode_stats(self, verbose=True):
-        save_csv = True
+        save_csv = False
 
         if len(self.states) and self.stats_saved is False:
             ep = pd.DataFrame(self.states)
             if self.save_observations:
                 timestamp = f"{self.laps_path}/{get_date_timestemp()}"
-                s = {"states": self.states,
-                     "static_info": self.static_info.copy()
-                }
-                save_path = f"{timestamp}_raw_data.pkl"
-                to_pickle(s, save_path)
-                logger.info(f"Saved raw data to:")
-                logger.info(save_path)
+                df_states = pd.DataFrame(self.states)
+                states_save_path = f"{timestamp}_states.parquet"
+                df_states.to_parquet(states_save_path, engine="pyarrow", index=False)
+                logger.info(f"Saved raw data to: {states_save_path}")
+
+                if len(self.episodes_stats) == 0:
+                    with open(f"{self.laps_path}/{'static_info.json'}", "w") as f:
+                        json.dump(self.static_info, f, indent=4)  # Use indent=4 for readability
 
                 if save_csv:
                     save_csv_channels = ['steps', 'currentTime', 'done',

@@ -2,7 +2,7 @@ load_offline_data: False    # offline pre-training and data loading
 pre_train: False            # pre train using offline data before start online training
 dataset_path: null          # Path to the datasets, null means it will be overridden by the command line if needed
 work_dir: null              # Path to run the model from (default: None)
-task: AssettoCorsaEnv
+task: AssettoCorsaGym
 seed: 0
 
 # wandb
