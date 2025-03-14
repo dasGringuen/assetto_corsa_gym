@@ -131,7 +131,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         'angular_velocity_y': np.pi,
         'angular_velocity_z': np.pi,
         'local_velocity_x': TOP_SPEED_MS,
-        'local_velocity_y': 10.,
+        'local_velocity_y': 20.,
         'local_velocity_z': 5.,
         'SlipAngle_fl': 25.,
         'SlipAngle_fr': 25.,
@@ -189,6 +189,19 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         # 'Dy_fr',
         # 'Dy_fl',
     ]
+
+    obs_extra_enabled_channels = [
+        'local_velocity_x',
+        'local_velocity_y',
+        'angular_velocity_y',
+        'steerAngle',
+        'accStatus',
+        'brakeStatus',
+        'world_position_x',
+        'world_position_y',
+        'yaw'
+    ]
+
 
     def __init__(self, config,
                  output_path: None,
@@ -250,6 +263,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.states = []      # some extra channels calculated. Without initialization
         self.history_obs = []  # history of observations
         self.episodes_stats = []
+        self.info = {}
 
         self.total_steps = 0
         self.n_episodes = 0
@@ -337,6 +351,12 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         # out of track in the state
         state_dim += 1
         self.state_dim = state_dim
+
+        self.obs_shape = (self.state_dim,)
+        if self.config.use_obs_extra:
+            self.obs_extra_shape = (len(self.obs_extra_enabled_channels),)  # (features,)
+        else:
+            self.obs_extra_shape = None
 
         if verbose:
             logger.info(f"enable_sensors {self.enable_sensors}")
@@ -454,6 +474,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                          f'done: {state["done"]:.0f} LapDist: {state["LapDist"]:.0f} gap: {state["gap"]:.1f} '
                          )
 
+        self.info = buf_infos
         self.ep_reward += self.state["reward"]
         self.states.append(self.state.copy())
         return obs, self.state["reward"], self.state["done"], buf_infos
@@ -558,6 +579,8 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             logger.info(f"Race stopped. Gap too big ({gap})")
             done = 1
 
+        # extra channels in the info variable
+        buf_infos['obs_extra'] = self.get_extra_observations(state)
         if done:
             # used by SB3 save final observation where user can get it, then reset
             #buf_infos['terminal_observation'] = obs.copy()
@@ -568,6 +591,12 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
         state["done"] = done
         return state, buf_infos
+
+    def get_extra_observations(self, state):
+        return np.array([state[channel] for channel in self.obs_extra_enabled_channels], dtype=np.float32)
+
+    def get_extra_obs_index(self, channel_name):
+        return self.obs_extra_enabled_channels.index(channel_name)
 
     def get_reward(self, state, actions_diff):
         out_of_track = state["out_of_track_calc"]
@@ -638,11 +667,15 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             obs, _, _, _ = self.step(self.start_actions)
 
         self.states = []
-        obs, _, _, _ = self.step(self.start_actions)
+        obs, _, _, info = self.step(self.start_actions)
+        self.info = info
 
         self.ep_reward = 0.
         self.ep_steps = 0  # reset steps after flushing the actions
         return obs
+
+    def get_info(self):
+        return self.info.copy()
 
     def close(self):
         return self.end()
@@ -793,7 +826,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                 r[f"LapNo_{i}"] = ep[ep.LapCount == lapCount]["iLastTime"].values[-1] / 1000 # to seconds
             #  BestLap from the dictionary, excluding lap times that are 0 (incomplete laps)
             r["ep_bestLapTime"] = min((time for key, time in r.items() if key.startswith("LapNo_") and time > 0), default=0)
-            if 1:
+            if verbose:
                 logger.info(f"total_steps: {self.total_steps} ep_steps: {self.ep_steps} ep_reward: {r['ep_reward']:6.1f} "
                             f"LapDist: {self.state['LapDist']:6.2f} packages lost {number_packages_lost} BestLap: {r['BestLap']}")
                 for i, lapCount in enumerate(list(set( ep.LapCount ))):
@@ -821,11 +854,26 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         states = self.states
         return pd.DataFrame(states)
 
-    def load_history(self, file_path, format='parquet'):
-        if format == 'parquet':
-            return pd.read_parquet(file_path, engine="pyarrow").to_dict(orient="records")
+    def load_history(self, file_path):
+        """Loads trajectory data, inferring format from file extension."""
+        file_path = Path(file_path)
+        if file_path.suffix == ".parquet":
+            trajectory = pd.read_parquet(file_path, engine="pyarrow").to_dict(orient="records")
+
+            # Load static info from JSON
+            static_info_path = file_path.parent / "static_info.json"
+            assert static_info_path.exists(), f"Static info file not found: {static_info_path}"
+            with open(static_info_path, "r") as f:
+                static_info = json.load(f)
+        elif file_path.suffix == ".pkl":
+            with open(file_path, "rb") as f:
+                data = pickle.load(f)
+                trajectory = data["states"]
+                static_info = data["static_info"]
         else:
-            raise NotImplementedError
+            raise ValueError(f"Unsupported file format: {file_path.suffix}")
+
+        return trajectory, static_info
 
     def set_track(self, track_name):
         logger.info(f"Setting track {track_name}")

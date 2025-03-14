@@ -52,9 +52,6 @@ def make_ac_env(cfg, work_dir=None, ac_configs_path=None):
     ac_configs_path: path to the AssettoCorsaConfigs folder containing the car and track configs.
                      Default is None which will use the default path.
     """
-    if cfg and cfg.task != "AssettoCorsaGym":
-        # config from TDMPC
-        raise ValueError('Unknown task:', cfg.task)
     if work_dir is None:
         work_dir = cfg.work_dir.as_posix()
     config = ModuleConfig(cfg.AssettoCorsa)

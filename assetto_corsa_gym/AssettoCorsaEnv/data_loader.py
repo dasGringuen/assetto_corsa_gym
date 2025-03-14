@@ -23,7 +23,11 @@ def seconds_to_mm_ss_mmm(seconds):
 class DataLoader():
     def __init__(self, env, data_set_path, log_steer_ratios=False):
         self.env = env
-        self.trajectories_paths =  sorted( glob.glob(data_set_path  + '/*.pkl' ) )
+
+        # Find all .pkl and .parquet files in the dataset path
+        self.trajectories_paths = sorted(
+            glob.glob(data_set_path + '/*.pkl') + glob.glob(data_set_path + '/*.parquet')
+        )
         self.trajectories_count = len(self.trajectories_paths)
         assert self.trajectories_count > 0, f"No trajectories found in {data_set_path}"
         logger.info(f"Found {self.trajectories_count} trajectories in the path: {data_set_path}")
@@ -64,21 +68,14 @@ class DataLoader():
         load_path = self.trajectories_paths[self.trajectory_number]
         assert Path(load_path).exists(), f"Trajectory file not found: {load_path}"
         try:
-            with open(load_path, 'rb') as f:
-                t = pickle.load(f)
-                self.trajectory = t["states"]
-                self.static_info = t["static_info"]
-                #print(f"Loaded trajectory number: {self.trajectory_number}/{self.trajectories_count - 1} with len: {len(self.trajectory)}")
-                self.trajectory_number += 1
-                self.current_step = 0
-                # print steer ratios
-                if self.log_steer_ratios:
-                    self.compute_steer_ratio_statistics(self.trajectory)
-
+            self.trajectory, self.static_info = self.env.load_history(load_path)
+            self.trajectory_number += 1
+            self.current_step = 0
+            if self.log_steer_ratios:
+                self.compute_steer_ratio_statistics(self.trajectory)
         except Exception:
             logger.error(f"Error loading trajectory: {load_path}")
             raise
-        #logger.info(f"found n steps {len(self.trajectory)}")
 
     def read_step(self):
         state = self.trajectory[self.current_step]
@@ -112,9 +109,17 @@ class DataLoader():
             # don't end the episode on oot , human laps are full of them
             # but we set the termination signal which is needed to train the model
         self.current_step += 1
-        if self.current_step == len(self.trajectory) + 1:
+        if self.current_step == len(self.trajectory):
             done = True
-        self.info = {"terminated": float(terminated)}
+
+        truncated = False
+        if done and not terminated:
+            truncated = True
+
+        self.info = {"terminated": float(terminated),
+                     "obs_extra": self.env.get_extra_observations(state),
+                     "TimeLimit.truncated": float(truncated)
+                     }
         self.done = float(done)
 
     def reset(self):
@@ -122,11 +127,15 @@ class DataLoader():
         self.read_step()
         return self.obs
 
+    def get_info(self):
+        return self.info.copy()
+
     def act(self):
-        self.read_step()
-        return self.action
+        self.read_step()   # set get obs to t+1
+        return self.action # actions  that took the car from t-1 to t
 
     def step(self, action):
+        # returns at t+1
         return self.obs, self.reward, self.done, self.info
 
     def get_task_id(self):
