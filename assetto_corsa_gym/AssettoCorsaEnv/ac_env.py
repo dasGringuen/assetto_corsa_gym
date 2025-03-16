@@ -240,6 +240,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.add_previous_obs_to_state = self.config.add_previous_obs_to_state
         self.send_reset_at_start = self.config.send_reset_at_start
         self.max_steer_rate = self.config.max_steer_rate
+        self.use_obs_extra = self.config.use_obs_extra
 
         # from the config
         self.use_ac_out_of_track = self.config.use_ac_out_of_track
@@ -353,7 +354,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.state_dim = state_dim
 
         self.obs_shape = (self.state_dim,)
-        if self.config.use_obs_extra:
+        if self.use_obs_extra:
             self.obs_extra_shape = (len(self.obs_extra_enabled_channels),)  # (features,)
         else:
             self.obs_extra_shape = None
@@ -580,7 +581,8 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             done = 1
 
         # extra channels in the info variable
-        buf_infos['obs_extra'] = self.get_extra_observations(state)
+        if self.use_obs_extra:
+            buf_infos['obs_extra'] = self.get_extra_observations(state)
         if done:
             # used by SB3 save final observation where user can get it, then reset
             #buf_infos['terminal_observation'] = obs.copy()
