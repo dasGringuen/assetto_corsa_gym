@@ -6,7 +6,7 @@ task: AssettoCorsaGym
 seed: 0
 
 # wandb
-disable_wandb: True
+disable_wandb: False
 wandb_entity: null  # user
 wandb_project: sac
 wandb_silent: False
@@ -19,9 +19,9 @@ action_dim: null  # placeholder
 steps: null # placeholder
 
 Agent:
-  num_steps: 10_000_000
+  num_steps: 8_000_000
   batch_size: 128
-  memory_size: 10_000_000
+  memory_size: 8_000_000
   offline_buffer_size: 12_000_000
   use_offline_buffer: False # offline dual buffer
   update_interval: 1
@@ -50,7 +50,6 @@ DisCor:
 AssettoCorsa:
   ego_sampling_freq: 25     # in Hz
   max_episode_py_time: 600. # in seconds
-  train_steps: 10_000_000
   gap_const: 12.
   eval_number_of_laps: 4    # including out lap which is incomplete
   save_lap_csv: False
