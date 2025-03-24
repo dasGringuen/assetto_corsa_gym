@@ -82,24 +82,6 @@ class vJoy(object):
             return True
         return False
 
-# valueX between 0 and 2
-# valueY, valueZ between 0 and 1
-# scale between 0 and 16000
-def setJoy(valueX, valueY, valueZ, onButtons, scale):
-    xPos = int(valueX * scale)
-    yPos = int(valueY * 2 * scale)
-    zPos = int(valueZ * 2 * scale)
-    #yPos = int(valueY * scale)
-    #zPos = int(valueZ * scale)
-    if onButtons != 0:
-        joystickPosition = vj.generateJoystickPosition(wAxisX= xPos, wAxisY=yPos, wAxisZ=zPos, lButtons=onButtons)
-        vj.update(joystickPosition)
-        time.sleep(0.01)
-
-    joystickPosition = vj.generateJoystickPosition(wAxisX= xPos, wAxisY=yPos, wAxisZ=zPos)
-    vj.update(joystickPosition)
-
-
 # Only for testing
 def gearUp():
     #press

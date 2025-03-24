@@ -249,29 +249,22 @@ class DriverControls(dict):
         self["steer"] = 0
         self["acc"] = -1
         self["brake"] = -1
-        self["enable_clutch"] = 0
-        self["clutch"] = -1
         self["enable_gear_shift"] = 0
         self["shift_up"] = 0
         self["shift_down"] = 0
 
-    def set_controls(self, steer, acc, brake, enable_clutch=False, clutch=-1,
-                     enable_gear_shift=False, shift_up=False, shift_down=False):
+    def set_controls(self, steer, acc, brake, enable_gear_shift=False, shift_up=False, shift_down=False):
         self["steer"] = steer
         self["acc"] = acc
         self["brake"] = brake
-        self["enable_clutch"] = int(enable_clutch)
-        self["clutch"] = clutch
-        self["enable_gear_shift"] = int(enable_gear_shift)
-        self["shift_up"] = int(shift_up)
-        self["shift_down"] = int(shift_down)
+        self["enable_gear_shift"] = enable_gear_shift
+        self["shift_up"] = shift_up
+        self["shift_down"] = shift_down
 
     def apply_local_controls(self):
         self.local_controls.set_controls(steer=self["steer"],
                                          acc=self["acc"],
                                          brake=self["brake"],
-                                         enable_clutch=self["enable_clutch"],
-                                         clutch=self["clutch"],
                                          enable_gear_shift=self["enable_gear_shift"],
                                          shift_up=self["shift_up"],
                                          shift_down=self["shift_down"])

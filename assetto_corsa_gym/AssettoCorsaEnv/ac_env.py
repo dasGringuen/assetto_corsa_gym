@@ -535,6 +535,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         done = 0
         buf_infos = {}
         buf_infos['terminated'] = False  # used by TD MPC
+        buf_infos['TimeLimit.truncated'] = False
 
         if state["done"]:
             ### TODO lap ended by AC.. se what to do here
@@ -591,6 +592,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             if self.recover_car_on_done:
                 self.recover_car()
 
+        state.update(buf_infos)
         state["done"] = done
         return state, buf_infos
 
@@ -823,6 +825,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                   "speed_max": ep.speed.max(),
                   #"completedLaps": ep.completedLaps.values[-1],
                   "BestLap": ep['BestLap'].values[-1] / 1000.,
+                  "terminated": ep.terminated.values[-1]
             }
             for i, lapCount in enumerate(list(set( ep.LapCount ))):
                 r[f"LapNo_{i}"] = ep[ep.LapCount == lapCount]["iLastTime"].values[-1] / 1000 # to seconds
