@@ -1,4 +1,9 @@
-from AssettoCorsaEnv.vjoy import vJoy
+import os
+
+if os.name == 'posix':
+    from AssettoCorsaEnv.vjoy_linux import vJoy
+else:
+    from AssettoCorsaEnv.vjoy import vJoy
 
 import logging
 logger = logging.getLogger(__name__)

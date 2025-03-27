@@ -52,7 +52,7 @@ try:
         controls = Controls()
     else:
         controls = None
-    import alternative_python
+    # import alternative_python
 except:
     logging.exception("An error occurred")
     raise
@@ -226,10 +226,11 @@ def acMain(ac_version):
 
     # Starting screen capture worker in a new process and Python interpreter
     # using a newer version than default in AC (Python3.3)
-    if config.enable_alternative_python_interpreter:
-        alternative_interpreter = alternative_python.ProducerSpawner(config.screen_capture_worker,
-                                                                     config.config_python_executable,
-                                                                     config.config_python_env_name)
+    # if config.enable_alternative_python_interpreter:
+    #     alternative_interpreter = alternative_python.ProducerSpawner(config.screen_capture_worker,
+    #                                                                  config.config_python_executable,
+    #                                                                  config.config_python_env_name)
+    alternative_interpreter = None
     return "sensors_par"
 
 def acShutdown():
