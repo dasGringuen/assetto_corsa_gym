@@ -75,8 +75,8 @@ class vJoy:
             # REL_X = 0x00   # Steering (now using relative movement)
             # ABS_RZ = 0x05 # Right trigger (Throttle)
             # ABS_Z = 0x02  # Left trigger (Brake)
-            ABS_GAS = 0x09
-            ABS_BRAKE = 0x0A
+            ABS_GAS = 0x01
+            ABS_BRAKE = 0x03
             
             # Map steering (wAxisX)
             steer_value = values[4]
@@ -88,13 +88,13 @@ class vJoy:
             self._send_event(EV_ABS, ABS_X, scaled_steer)
             
             # Map throttle (wAxisY) from 0-32768 to 0-255
-            throttle_value = int((values[5] / 32768.0) * 255)
-            throttle_value = max(0, min(255, throttle_value))
+            throttle_value = int(((values[5] / 32768.0) * 2 - 1) * 32767)
+            throttle_value = max(-32768, min(32767, throttle_value))
             self._send_event(EV_ABS, ABS_GAS, throttle_value)
             
             # Map brake (wAxisZ) from 0-32768 to 0-255
-            brake_value = int((values[6] / 32768.0) * 255)
-            brake_value = max(0, min(255, brake_value))
+            brake_value = int(((values[6] / 32768.0) * 2 - 1) * 32767)
+            brake_value = max(-32768, min(32767, brake_value))
             self._send_event(EV_ABS, ABS_BRAKE, brake_value)
             
             # Send a synchronization event
@@ -126,7 +126,7 @@ def setJoy(valueX, valueY, valueZ, onButtons, scale):
     yPos = int(valueY * 32768)
     zPos = int(valueZ * 32768)
     
-    vjoy = vJoyLinux()
+    vjoy = vJoy()
     if vjoy.open():
         try:
             if onButtons != 0:
