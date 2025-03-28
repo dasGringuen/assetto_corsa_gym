@@ -134,7 +134,7 @@ Install `evtest` and use `evtest` to figure out event code of the device.
 sudo apt-get evtest
 sudo evtest /dev/input/event<NUM>
 ```
-Revise line 69-79 for axis code, and line 81-98 for range of inputs in [AssettoCorsaEnv/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py) and [AssettoCorsaPlugin/sensors_par/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py) according to the virtual xbox device setting. 
+According to the virtual xbox device setting, if necessary, revise line 69-79 for axis code, and line 81-98 for range of inputs in [AssettoCorsaEnv/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py) and [AssettoCorsaPlugin/sensors_par/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py), and revise **AXLE** of `STEER`, `THROTTLE` and `BRAKES` in [Vjoy_linux.ini](./assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/Vjoy_linux.ini). 
 
 ## **4. Assetto Corsa game configuration**
 ### **4.1 Copy the Plugin Files**  
@@ -161,7 +161,7 @@ assetto_corsa_gym\AssettoCorsaPlugin\windows-libs
 ```
 
 - **VJoy Configuration**  
-  - Copy `Vjoy.ini` to:  
+  - Copy `Vjoy_linux.ini` to:  
     ```sh
     <path/to/steamapps>\steamapps\common\assettocorsa\cfg\controllers\savedsetups
     ```
@@ -192,7 +192,6 @@ assetto_corsa_gym\AssettoCorsaPlugin\windows-libs
 1. Navigate to **Options > Controls**  
 2. Ensure that both **vJoy** and **WASD** are available  
 3. Load **vJoy** as the active input
-4. Select xbox for control option  
 
 #### **4.3.3 Set Video and Display Settings**  
 - **Frame Rate Limit:** `50 FPS`  
