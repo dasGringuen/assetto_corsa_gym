@@ -19,7 +19,7 @@ class Config(object):
         self.vjoy_executed_by_server = False
 
         # Alternative python interpreter
-        self.enable_alternative_python_interpreter = True
+        self.enable_alternative_python_interpreter = False
         # config_python_env_name: Name of the Anaconda environment for constructing the path (default: "p309").
         self.config_python_env_name = "p309"
         # config_python_executable: If provided, uses this path; if None, builds it as:
