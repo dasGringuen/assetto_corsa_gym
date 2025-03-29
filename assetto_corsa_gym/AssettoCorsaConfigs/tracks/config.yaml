@@ -37,3 +37,45 @@ indianapolis_sp:
   track_grid_file: indianapolis_sp_0.1m.pkl
   ref_lap_file: indianapolis_sp-racing_line.csv
   TrackLength: 4066.004150390625
+
+china-gp:
+  track_name: china-gp
+  track_configuration:
+  track_file: china-gp.csv
+  track_grid_file: china-gp_0.1m.pkl
+  ref_lap_file: china-gp-racing_line.csv
+  TrackLength: 5385.97314453125
+  description: Shanghai International Circuit
+
+imola:
+  track_name: imola
+  track_configuration:
+  track_file: imola.csv
+  track_grid_file: imola_0.1m.pkl
+  ref_lap_file: imola-racing_line.csv
+  TrackLength: 4864.107421875
+
+ks_laguna_seca:
+  track_name: ks_laguna_seca
+  track_configuration:
+  track_file: ks_laguna_seca.csv
+  track_grid_file: ks_laguna_seca_0.1m.pkl
+  ref_lap_file: ks_laguna_seca-racing_line.csv
+  TrackLength: 3558.725830078125
+
+thunderhill_raceway_park-twomilewest:
+  track_name: thunderhill_raceway_park-twomilewest
+  track_configuration:
+  track_file: thunderhill_raceway_park-twomilewest.csv
+  track_grid_file: thunderhill_raceway_park-twomilewest_0.1m.pkl
+  ref_lap_file: thunderhill_raceway_park-twomilewest-racing_line.csv
+  TrackLength: 2619.10302734375
+  description: Thunderhill Raceway, west track/2 mile
+
+monaco:
+  track_name: monaco
+  track_configuration:
+  track_file: monaco.csv
+  track_grid_file: monaco_0.1m.pkl
+  ref_lap_file: monaco-racing_line.csv
+  TrackLength: 3290.542236328125
