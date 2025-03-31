@@ -241,6 +241,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.send_reset_at_start = self.config.send_reset_at_start
         self.max_steer_rate = self.config.max_steer_rate
         self.use_obs_extra = self.config.use_obs_extra
+        self.use_reference_line_in_reward = self.config.use_reference_line_in_reward
 
         # from the config
         self.use_ac_out_of_track = self.config.use_ac_out_of_track
