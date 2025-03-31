@@ -603,10 +603,13 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         return self.obs_extra_enabled_channels.index(channel_name)
 
     def get_reward(self, state, actions_diff):
+        speed = 3.6 * np.array(state['speed'])
         out_of_track = state["out_of_track_calc"]
-        #dist_to_border = state["dist_to_border"]
+        dist_to_border = state["dist_to_border"]
 
-        r = 3.6 * state['speed'] * ( 1.0 - (np.abs( state["gap"]) / 12.00))
+        r = speed
+        if self.use_reference_line_in_reward:
+            r *= ( 1.0 - (np.abs( state["gap"]) / 12.00))
         r /= 300. # normalize
 
         if self.penalize_actions_diff:
