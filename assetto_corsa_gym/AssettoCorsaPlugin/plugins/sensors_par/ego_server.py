@@ -7,8 +7,6 @@ from precise_timer import PreciseTimer
 from config import Config
 from record_telemetry import Telemetry
 from profiler import Profiler
-if os.name != 'posix':
-    import win32event, win32con
 import logging
 logger = logging.getLogger(__name__)
 
@@ -82,7 +80,8 @@ class EgoServer:
         self.socket_open = False
 
         # ----- Create the named events -----
-        if os.name != 'posix':
+        if self.config.screen_capture_enable:
+            import win32event, win32con
             self.hTriggerImageCapture = win32event.CreateEvent(None, True, False, self.config.trigger_image_capture_event_name)
             self.hEgoSamplingEvent = win32event.CreateEvent(None, True, False, self.config.ego_sampling_freq_event_name)
 
@@ -193,13 +192,12 @@ class EgoServer:
                 self.car.update(self.track)
                 self.telemetry.step(self.car.copy())
 
-        if os.name != 'posix':
-            if self.config.screen_capture_enable and (self.total_steps % (self.config.sampling_freq // self.config.screen_capture_freq)) == 0:
-                # Signal screen capture process to capture a new image
-                win32event.SetEvent(self.hTriggerImageCapture)
+        if self.config.screen_capture_enable and (self.total_steps % (self.config.sampling_freq // self.config.screen_capture_freq)) == 0:
+            # Signal screen capture process to capture a new image
+            win32event.SetEvent(self.hTriggerImageCapture)
 
-                # Every other tick (i.e. at 25Hz) also signal the 25Hz tick:
-                win32event.SetEvent(self.hEgoSamplingEvent)
+            # Every other tick (i.e. at 25Hz) also signal the 25Hz tick:
+            win32event.SetEvent(self.hEgoSamplingEvent)
 
         ## if control loop down sample, send telemetry to client
         if self.current_client and self.current_client.initialized:

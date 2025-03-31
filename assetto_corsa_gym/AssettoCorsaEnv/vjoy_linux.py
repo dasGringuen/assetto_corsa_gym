@@ -1,5 +1,12 @@
 import struct
-import time
+from evdev import InputDevice, list_devices
+
+def find_xbox360_controller():
+    for path in list_devices():
+        device = InputDevice(path)
+        if "X-Box 360" in device.name:
+            return device.path
+    return None
 
 class vJoy:
     def __init__(self, reference=1):
@@ -7,7 +14,7 @@ class vJoy:
         self.device = None
         self.acquired = False
         self.js_path = "/dev/input/js0"
-        self.event_path = "/dev/input/event11"
+        self.event_path = find_xbox360_controller()
 
     def open(self):
         """Open the virtual joystick device"""
