@@ -12,7 +12,7 @@ Go to Steam Library > Assetto Corsa
 
 After checking the box, you are expected to see a list of available Proton version attached below. 
 
-Next we will install and add a specific Proton version -- GE-Proton9-2.  
+Next we will install and add a specific Proton version: **GE-Proton9-2**.  
 
 ### **1.2 Download ProtonUp-Qt** 
 ProtonQT is needed to install GE-Proton-9-2.
@@ -34,12 +34,11 @@ Click `Add version`, choose `GE-Proton` for `Compatibility Tool` and `GE-Proton9
 #### **Step 3: Set GE-Proton9-2 as the Proton version for Assetto Corsa**
 Click `Show game list`, choose `GE-Proton9-2` as the compatibility tool, and click `apply`. 
 
-Then reboot the Steam, you would expect GE-Proton9-2 to be the default Proton version under `Manage > Compatibility`. If not, you can find GE-Proton9-2 in the list and choose it as the Proton version. 
+Then reboot Steam, you would expect GE-Proton9-2 to be the default Proton version under `Manage > Compatibility`. If not, you can find GE-Proton9-2 in the list and choose it as the Proton version. 
 
 ### **1.4 Initiate Assetto Corsa**
-Start the Assetto Corsa program, and you would expect about 3~5 minutes waiting for Proton installation and initialization. 
-
-In case the program crashes, you can initiate Steam with command line and the installation details of Proton will be demonstrated when Assetto Corsa is running. A quick fix for the Proton crash is to switch to an older version. 
+Start Assetto Corsa, and expect to wait about 3 to 5 minutes for Proton to install and initialize.
+If the program crashes, start Steam from the command line. The installation details of Proton will be displayed when Assetto Corsa is running. A quick fix for Proton crashes is to switch to a different version. On some systems, the Assetto Corsa main screen worked, but the race would not start. Switching to GE-Proton9-26 resolved the issue.
 
 ## **2. Content Manager Installation**
 ### **2.1 Download Content Manager**
