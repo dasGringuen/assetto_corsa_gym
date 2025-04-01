@@ -12,16 +12,25 @@ Official implementation of the paper:
 
 ----
 
-# To pull from remote
 
-```
-git remote add external-repo git@github.com:dasGringuen/assetto_corsa_gym.git # (already done) 
-git fetch external-repo
-git checkout main
-git pull external-repo main
+## 📄 Table of Contents
 
-git push # to push to private repo
-```
+- [Overview](#overview)
+- [Updates](#updates)
+- [Source Code Tree](#source-code-tree)
+- [Getting Started](#getting-started)
+- [Demos](#demos)
+- [Benchmarks](#benchmarks)
+  - [Example policy for Monza and GT3](#example-policy-for-monza-and-the-gt3-car)
+  - [Train SAC from Scratch](#train-from-sac-from-scratch)
+  - [Test a Model](#test-a-model-by-loading-a-checkpoint)
+  - [Train SAC from Demonstrations](#train-sac-from-demonstrations-using-an-ensemble-of-buffers)
+  - [Train with Weights & Biases](#train-with-weights--biases-enabled)
+- [Screen Capture Support](#screen-capture-support)
+- [Download Datasets](#download-datasets)
+- [Contributing](#contributing)
+- [License](#license)
+
 
 ## Overview
 Gym interfaces with AssettoCorsa for Autonomous Racing. This repository integrates the AssettoCorsa racing simulator with the OpenAI's Gym interface, providing a high-fidelity environment for developing and testing Autonomous Racing algorithms in realistic racing scenarios.
@@ -38,6 +47,14 @@ This repository contains all the necessary code to run the Gym interface for Ass
 
 We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) implementation.
 ## **Updates**  
+
+### **Apr 2025:**
+- Added support for **running Assetto Corsa and training agents natively on Linux** using **Proton**.  
+  The Linux version offers **better execution speed** and is **more stable** than Windows, while yielding **identical results**.  
+  → See detailed installation instructions in [`INSTALL_Linux.md`](INSTALL_Linux.md).
+- Added support for **manual gearbox shifting** in the Gym interface.
+
+
 
 ### **Feb 2025: Support for Alternate Python Interpreters**  
 - Now supports the use of **newer Python interpreter versions** on the plugin side.  
