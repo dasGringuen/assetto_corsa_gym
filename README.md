@@ -275,9 +275,9 @@ This project is licensed under the MIT License - see the `LICENSE` file for deta
 ---
 ## Acknowledgments
 
-- Adrian Remonda @dasgringuen (TU Graz)
-- Jiajun Xi @Nightwalkx
-- @alfredgu001324
+- Adrian Remonda [@dasgringuen](https://github.com/dasgringuen) (TU Graz / UCSD)
+- Jiajun Xi [@Nightwalkx](https://github.com/xi-jiajun)
+- [@alfredgu001324](https://github.com/alfredgu001324)
 - Francesco Gatti (TII EuroRacing - Hipert)
 - Andrea Serafini (TII EuroRacing - Unimore)
 - Francesco Moretti (TII EuroRacing - Unimore)
