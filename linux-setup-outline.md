@@ -38,7 +38,9 @@ Then reboot Steam, you would expect GE-Proton9-2 to be the default Proton versio
 
 ### **1.4 Initiate Assetto Corsa**
 Start Assetto Corsa, and expect to wait about 3 to 5 minutes for Proton to install and initialize.
-If the program crashes, start Steam from the command line. The installation details of Proton will be displayed when Assetto Corsa is running. A quick fix for Proton crashes is to switch to a different version. On some systems, the Assetto Corsa main screen worked, but the race would not start. Switching to GE-Proton9-26 resolved the issue.
+If the program crashes, start Steam from the command line. The installation details of Proton will be displayed when Assetto Corsa is running. A quick fix for Proton crashes is to switch to a different version.
+
+**Note**: On some systems, the Assetto Corsa main screen worked, but the race would not start. Switching to GE-Proton9-26 resolved the issue.
 
 ## **2. Content Manager Installation**
 ### **2.1 Download Content Manager**
@@ -72,27 +74,29 @@ You would expect `AssettoCorsa.exe` is generated, and it is linked to `Content M
 
 ### **2.3.5 (Optional):  Create a soft link for Steam user config**
 1. First locate the user config folder in Proton. Naviagate the parent folder (usually `steamapps`) of Assetto Corsa local folder, and locate to 
-`<path/to/steamapps>/steamapps/compatdata/244210/pfx/drive_c/Program Files (x86)/Steam/config`. 
+`~/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/Program Files (x86)/Steam/config`. 
+
+
+
 2. Then locate the local user config, for example `~/.steam/root/debian-installation/config`
 3. Create a softlink to user config folder in Proton, for example
 
 ```sh
-ln -s "~/.steam/root/debian-installation/config" "<path/to/steamapps>/steamapps/compatdata/244210/pfx/drive_c/Program Files (x86)/Steam/config"
+ln -s "~/.steam/root/debian-installation/config" "/home/<user>/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/Program Files (x86)/Steam/config"
 ```
 
 ### **2.4 Initiate Content Manager**
-Go to Steam Assetto Corsa page, and start the Assetto Corsa game. Due to the hard link created, the Content Manager will be initiated rather than the Assetto Corsa game itself. 
+Go to Steam Assetto Corsa page, and start Assetto Corsa. Due to the hard link created, the Content Manager will be initiated rather than the Assetto Corsa game itself. 
 
-In the setting page, for `Assetto Corsa root folder`, select 
+In the setting page, for `Assetto Corsa root folder`, set
 
-`<path/to/steamapps>/steamapps/common/assettocorsa`
+`\home\<user>\.local\share\Steam\steamapps\common\assettocorsa\`
 
 ### **2.5 Install Custom Shader Patch**
-1. Open **Content Manager** → Navigate to:  
-   ```sh
-   Settings > Custom Shaders Patch
-   ```
-2. Click **Install** to complete the setup.
+
+1. Download CSP v0.2.1 (other versions have a bug that makes the screen too dark, and the stable version crashes) from [https://acstuff.club/patch/?info=0.2.1](https://acstuff.club/patch/?info=0.2.1).
+
+2. Install it by dragging and dropping the downloaded ZIP file into Content Manager Window.
 
 **WARNING**: if `INIReader::cache error` is reported when running Assetto Corsa game, you need to switch to a upgraded version of custom shader patch (e.g. ver 0.2.7), though the game graphics may be affected. 
 
@@ -120,17 +124,122 @@ Locate the input device index number for virtual xbox by searching with
 ```sh
 cat /proc/bus/input/devices
 ```
-### **Step 3.4: Revise event_path in vjoy_linux.py** 
-Revise line 10 `self.event_path = "/dev/input/event<NUM>"` in [AssettoCorsaEnv/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py) and [AssettoCorsaPlugin/sensors_par/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py). 
-
-### **Step 3.5: Set write permission to device**
+### **Step 3.4: Set write permission to device**
 ```sh
 sudo chmod 666 /dev/input/event<NUM>
 ```
-### **Step 3.6: Revise device axis code and input range in vjoy_linux.py**
+
+
+### **Step 3.4: Revise event_path in vjoy_linux.py** 
+Install `pip  install evdev` in Python and the XBox device will be automatically selected. To debug use the following:
+
+Revise line 10 `self.event_path = "/dev/input/event<NUM>"` in [AssettoCorsaEnv/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py) and [AssettoCorsaPlugin/sensors_par/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py). 
+
+
+### **Step 3.5: (Optional) To revise device axis code and input range in vjoy_linux.py**
+
 Install `evtest` and use `evtest` to figure out event code of the device. 
 ```sh
 sudo apt-get evtest
 sudo evtest /dev/input/event<NUM>
 ```
 According to the virtual xbox device setting, if necessary, revise line 69-79 for axis code, and line 81-98 for range of inputs in [AssettoCorsaEnv/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py) and [AssettoCorsaPlugin/sensors_par/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py), and revise **AXLE** of `STEER`, `THROTTLE` and `BRAKES` in [Vjoy_linux.ini](./assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/Vjoy_linux.ini). 
+
+
+
+## **4. Assetto Corsa game configuration**
+### **4.1 Copy the Plugin Files**  
+1. Locate the plugin folder in this repository:  
+   ```sh
+   .\assetto_corsa_gym\AssettoCorsaPlugin\plugins\sensors_par
+   ```
+2. Copy this folder to the Assetto Corsa installation directory under `apps\python\`.  
+   - The default AC installation path is:  
+     ```sh
+     <path/to/steamapps>\steamapps\common\assettocorsa\
+     ```
+3. The final destination should look like this:  
+   ```sh
+   <path/to/steamapps>\steamapps\common\assettocorsa\apps\python\sensor_par
+   ```
+
+---
+
+### **4.2 Install Configuration Files**  
+Copy the necessary configuration files from:  
+```sh
+assetto_corsa_gym\AssettoCorsaPlugin\windows-libs
+```
+
+- **VJoy Configuration**  
+  - Copy `Vjoy_linux.ini` to:  
+    ```sh
+    <path/to/steamapps>\steamapps\common\assettocorsa\cfg\controllers\savedsetups
+    ```
+- **WASD Controls**  
+  - Copy `WASD.ini` to:  
+    ```sh
+    <path/to/steamapps>\steamapps\common\assettocorsa\cfg\controllers\savedsetups
+    ```
+- **DLLs and Library Folders**  
+  - Copy these folders (Python socket library) to:  
+    ```sh
+    <path/to/steamapps>\steamapps\common\assettocorsa\steamapps\common\assettocorsa\system\x64
+    ```
+
+---
+
+### **4.3 Configuring Assetto Corsa**  
+
+**IMPORTANT: When training RL agents, use the lowest resolution in Assetto Corsa, lower all graphics settings, and avoid full-screen mode. Close all applications, as network traffic or background applications can cause jitter, especially on slow hardware. Content Manager is useful for creating different profiles.**
+
+
+#### **4.3.1: Enable the Plugin**  
+1. Open **Assetto Corsa**  
+2. Go to **Options > General > UI Modules**  
+3. Enable `sensor_par`  
+
+#### **4.3.2 Configure Controls**  
+1. Navigate to **Options > Controls**  
+2. Ensure that both **vJoy** and **WASD** are available  
+3. Load **vJoy** as the active input
+
+#### **4.3.3 Set Video and Display Settings**  
+- **Frame Rate Limit:** `50 FPS`  
+  - *(Located in `Options > Video > Display > Framerate Limit`)*  
+
+#### **4.3.4 Start a Hotlap Session**  
+- **Mode:** `Challenge > Hotlap`  
+
+#### **4.3.5 Adjust Driving Assists**  
+| Setting                   | Recommended Value |
+|---------------------------|------------------|
+| Automatic Gearbox         | **ON** |
+| Ideal Racing Line         | **As Preferred** |
+| Automatic Clutch          | **Enabled** |
+| Automatic Throttle Blip   | **Disabled** |
+| Traction Control          | **OFF** |
+| Stability Control         | **OFF** |
+| Mechanical Damage         | **OFF** |
+| Tyre Blankets             | **ON** |
+| ABS                       | **OFF** |
+| Fuel Consumption          | **OFF** |
+| Tyre Wear                 | **OFF** |
+| Slipstream Effect         | **1x** |
+| Time of Day               | **10:00 AM** |
+| Weather                  | **Mid Clear** |
+| Ambient Temperature       | **26°C** |
+| Time Multiplier           | **1x** |
+| Track Surface             | **Optimum** |
+| Penalties                 | **ON** |
+
+
+## **5. Run AC Game**
+Note: when first launched the game, it is possible that you will be prompted `Failed to lauch the race` due to `Font "C:\windows\Fonts\verdana.ttf" is missing.` 
+1. Click "Yes" and you will download `ac-fonts.zip`
+2. Extract all `.ttf` files in folder `system` in `ac-fonts.zip`
+3. Move all `.ttf` files to 
+    ```sh
+    <path/to/steamapps>/steamapps/common/assettocorsa/content/fonts/system`
+    ```
+4. Relaunch the AC game. 
