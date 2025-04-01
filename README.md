@@ -50,6 +50,7 @@ We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) imple
 - Added support for **running Assetto Corsa and training agents natively on Linux** using **Proton**.  
   The Linux version offers **better execution speed** and is **more stable** than Windows, while yielding **identical results**.  
   → See detailed installation instructions in [INSTALL_Linux.md](INSTALL_Linux.md).
+  → Thanks to [@xi-jiajun](https://github.com/xi-jiajun) and [@alfredgu001324](https://github.com/alfredgu001324) for their contributions.
 - Added support for **manual gearbox shifting**.
 
 
