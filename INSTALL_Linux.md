@@ -1,6 +1,9 @@
 <h1>Assetto Corsa Gym Linux Setup</span></h1>
 
-Instructions on how to run Assetto Corsa on Linux, partially based on this [guide](https://www.youtube.com/watch?v=8qy_RQr8LbM).
+Instructions on how to run Assetto Corsa on Linux, partially based on this [guide](https://www.youtube.com/watch?v=8qy_RQr8LbM). tested on Ubuntu 24.04.
+
+**IMPORTANT: When training RL agents, use the lowest resolution in Assetto Corsa, lower all graphics settings, and avoid full-screen mode. Close all applications, as network traffic or background applications can cause jitter, especially on slow hardware. Content Manager is useful for creating different profiles.**
+
 
 ## **1. Proton Setup**
 To run Assetto Corsa on Linux, we need to first install Proton. 
@@ -133,20 +136,37 @@ sudo chmod 666 /dev/input/event<NUM>
 ### **Step 3.4: Revise event_path in vjoy_linux.py** 
 Install `pip  install evdev` in Python and the XBox device will be automatically selected. To debug use the following:
 
-Revise line 10 `self.event_path = "/dev/input/event<NUM>"` in [AssettoCorsaEnv/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py) and [AssettoCorsaPlugin/sensors_par/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py). 
+### **Step 3.5 (Optional): Revise Device Axis Codes and Input Ranges in `vjoy_linux.py`**
 
+1. Run `test_maps_creator.ipynb`.  
+   You should see an output like:
 
-### **Step 3.5: (Optional) To revise device axis code and input range in vjoy_linux.py**
+   ```
+   Closest Steering Command to reach 240.0°: 0.5342
+   ```
 
-Install `evtest` and use `evtest` to figure out event code of the device. 
-```sh
-sudo apt-get evtest
-sudo evtest /dev/input/event<NUM>
-```
-According to the virtual xbox device setting, if necessary, revise line 69-79 for axis code, and line 81-98 for range of inputs in [AssettoCorsaEnv/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py) and [AssettoCorsaPlugin/sensors_par/vjoy_linux.py](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py), and revise **AXLE** of `STEER`, `THROTTLE` and `BRAKES` in [Vjoy_linux.ini](./assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/Vjoy_linux.ini). 
+   It will also display a figure showing the input-output mapping in Assetto Corsa:
 
+   <img src="docs/steer_ranges_f317.jpg" alt="Steering Range Mapping" width="400"/>
 
+   If the result matches, it means the Xbox controller is properly configured.  
+   If not, proceed to the next steps.
 
+2. Install `evtest` and use it to identify the event code of your device:
+
+   ```sh
+   sudo apt-get install evtest
+   sudo evtest /dev/input/event<NUM>
+   ```
+
+3. If needed, update the axis codes (lines 69–79) and input ranges (lines 81–98) in:
+
+   - [`AssettoCorsaEnv/vjoy_linux.py`](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py)
+   - [`AssettoCorsaPlugin/sensors_par/vjoy_linux.py`](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py)
+
+   Also update the **AXLE** settings for `STEER`, `THROTTLE`, and `BRAKES` in [`Vjoy_linux.ini`](./assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/Vjoy_linux.ini) if necessary.
+
+---
 ## **4. Assetto Corsa game configuration**
 ### **4.1 Copy the Plugin Files**  
 1. Locate the plugin folder in this repository:  
@@ -163,7 +183,6 @@ According to the virtual xbox device setting, if necessary, revise line 69-79 fo
    <path/to/steamapps>\steamapps\common\assettocorsa\apps\python\sensor_par
    ```
 
----
 
 ### **4.2 Install Configuration Files**  
 Copy the necessary configuration files from:  
@@ -187,11 +206,9 @@ assetto_corsa_gym\AssettoCorsaPlugin\windows-libs
     <path/to/steamapps>\steamapps\common\assettocorsa\steamapps\common\assettocorsa\system\x64
     ```
 
----
 
 ### **4.3 Configuring Assetto Corsa**  
 
-**IMPORTANT: When training RL agents, use the lowest resolution in Assetto Corsa, lower all graphics settings, and avoid full-screen mode. Close all applications, as network traffic or background applications can cause jitter, especially on slow hardware. Content Manager is useful for creating different profiles.**
 
 
 #### **4.3.1: Enable the Plugin**  
@@ -233,7 +250,7 @@ assetto_corsa_gym\AssettoCorsaPlugin\windows-libs
 | Track Surface             | **Optimum** |
 | Penalties                 | **ON** |
 
-
+---
 ## **5. Run AC Game**
 Note: when first launched the game, it is possible that you will be prompted `Failed to lauch the race` due to `Font "C:\windows\Fonts\verdana.ttf" is missing.` 
 1. Click "Yes" and you will download `ac-fonts.zip`
