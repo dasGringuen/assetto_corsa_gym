@@ -107,7 +107,25 @@ class Car(dict):
 
         if self.send_extra_channels:
             # caution this increases the size of the message
-            self['tyre_heading_vector']  = ac.getCarState(self.car_id, acsys.CS.TyreHeadingVector)
+
+            # Vector for contact heading of each tyre. Vector components not angles!
+            # left handed coordinate system (AC)
+            #[Front Left, Front Right, Rear Left, Rear Right][x, y, z]
+            self["tyreContactHeading_FL_x"] = info.physics.tyreContactHeading[0]
+            self["tyreContactHeading_FL_y"] = info.physics.tyreContactHeading[1]
+            self["tyreContactHeading_FL_z"] = info.physics.tyreContactHeading[2]
+
+            self["tyreContactHeading_FR_x"] = info.physics.tyreContactHeading[3]
+            self["tyreContactHeading_FR_y"] = info.physics.tyreContactHeading[4]
+            self["tyreContactHeading_FR_z"] = info.physics.tyreContactHeading[5]
+
+            self["tyreContactHeading_RL_x"] = info.physics.tyreContactHeading[6]
+            self["tyreContactHeading_RL_y"] = info.physics.tyreContactHeading[7]
+            self["tyreContactHeading_RL_z"] = info.physics.tyreContactHeading[8]
+
+            self["tyreContactHeading_RR_x"] = info.physics.tyreContactHeading[9]
+            self["tyreContactHeading_RR_y"] = info.physics.tyreContactHeading[10]
+            self["tyreContactHeading_RR_z"] = info.physics.tyreContactHeading[11]
 
             # Tyre info
             # self['slip_fl'], self['slip_fr'], self['slip_rl'], self['slip_rr'] = ac.getCarState(self.car_id, acsys.CS.TyreSlip)
@@ -137,6 +155,9 @@ class Car(dict):
             # self['drag_coefficient'] = ac.getCarState(self.car_id, acsys.CS.Aero, '0')
             # self['lift_coefficient_front'] = ac.getCarState(self.car_id, acsys.CS.Aero, '1')
             # self['lift_coefficient_rear'] = ac.getCarState(self.car_id, acsys.CS.Aero, '2')
+
+            # does not work
+            # self['tyre_heading_vector']  = ac.getCarState(self.car_id, acsys.CS.TyreHeadingVector) -> does not work
 
 
     def distance_from_lanes(self, track):

@@ -5,10 +5,9 @@ import time
 import pandas as pd
 import numpy as np
 import os
-import pygame
-
+from AssettoCorsaEnv.pygame_joystick_handler import JoystickHandler
 from AssettoCorsaEnv.car_control import Controls
-import AssettoCorsaPlugin.plugins.sensors_par.screen_capture as screen_capture
+import AssettoCorsaPlugin.plugins.sensors_par.dual_buffer as dual_buffer
 
 logger = logging.getLogger(__name__)
 
@@ -67,28 +66,21 @@ class Client():
         self.socket = None
         self.controls = DriverControls(self.vjoy_executed_by_server)
         self.record_controls_from_client = config.record_controls_from_client
+
+        # Joystick handler (only used if needed)
+        self.joystick_handler = None
         self.screen_capture_enable = self.config.screen_capture_enable
         self.camera = None
         self.current_image = None
 
         if self.screen_capture_enable:
-            self.camera = screen_capture.GrabberSharedMemoryDualBuffer(self.config.final_image_width,
+            self.camera = dual_buffer.GrabberSharedMemoryDualBuffer(self.config.final_image_width,
                                                                        self.config.final_image_height,
                                                                        self.config.color_mode)
 
         if self.record_controls_from_client:
-            pygame.display.init()
-            pygame.joystick.init()
-            logger.info(pygame.joystick.get_count())
-            self.joystick = pygame.joystick.Joystick(0)
-            self.joystick.init()
-            logger.info(self.joystick.get_init())
-            logger.info(self.joystick.get_id())
-            logger.info(self.joystick.get_name())
-            logger.info(self.joystick.get_numaxes())
-            logger.info(self.joystick.get_numballs())
-            logger.info(self.joystick.get_numbuttons())
-            logger.info(self.joystick.get_numhats())
+            self.joystick_handler = JoystickHandler()
+            self.joystick_handler.initialize()
 
     def reply_to_server(self, msg):
         if not self.socket:
@@ -182,11 +174,8 @@ class Client():
         self.get_servers_input()
         state = self.state.copy()
 
-        if self.record_controls_from_client:
-            pygame.event.pump()
-            state["steerAngleManual"] = self.joystick.get_axis(0)
-            state["accStatusManual"] = self.joystick.get_axis(1)
-            state["brakeStatusManual"] = self.joystick.get_axis(2)
+        if self.record_controls_from_client and self.joystick_handler and self.joystick_handler.is_initialized():
+            state.update(self.joystick_handler.read_inputs())
         return state
 
     def export_track_and_racing_line(self, output_path="."):
@@ -251,8 +240,6 @@ class DriverControls(dict):
 
         self.set_defaults()
 
-        #
-        self.scale_steer = 0.6 # an input of 1 will be scaled to this value
         if not self.vjoy_executed_by_server:
             logger.warning("Controls will be executed locally and not by the server")
             self.local_controls = Controls()
@@ -262,29 +249,22 @@ class DriverControls(dict):
         self["steer"] = 0
         self["acc"] = -1
         self["brake"] = -1
-        self["enable_clutch"] = 0
-        self["clutch"] = -1
         self["enable_gear_shift"] = 0
         self["shift_up"] = 0
         self["shift_down"] = 0
 
-    def set_controls(self, steer, acc, brake, enable_clutch=False, clutch=-1,
-                     enable_gear_shift=False, shift_up=False, shift_down=False):
-        self["steer"] = steer * self.scale_steer
+    def set_controls(self, steer, acc, brake, enable_gear_shift=False, shift_up=False, shift_down=False):
+        self["steer"] = steer
         self["acc"] = acc
         self["brake"] = brake
-        self["enable_clutch"] = int(enable_clutch)
-        self["clutch"] = clutch
-        self["enable_gear_shift"] = int(enable_gear_shift)
-        self["shift_up"] = int(shift_up)
-        self["shift_down"] = int(shift_down)
+        self["enable_gear_shift"] = enable_gear_shift
+        self["shift_up"] = shift_up
+        self["shift_down"] = shift_down
 
     def apply_local_controls(self):
         self.local_controls.set_controls(steer=self["steer"],
                                          acc=self["acc"],
                                          brake=self["brake"],
-                                         enable_clutch=self["enable_clutch"],
-                                         clutch=self["clutch"],
                                          enable_gear_shift=self["enable_gear_shift"],
                                          shift_up=self["shift_up"],
                                          shift_down=self["shift_down"])

@@ -52,7 +52,8 @@ try:
         controls = Controls()
     else:
         controls = None
-    import alternative_python
+    if config.enable_alternative_python_interpreter:
+        import alternative_python
 except:
     logging.exception("An error occurred")
     raise
@@ -230,6 +231,8 @@ def acMain(ac_version):
         alternative_interpreter = alternative_python.ProducerSpawner(config.screen_capture_worker,
                                                                      config.config_python_executable,
                                                                      config.config_python_env_name)
+    else:
+        alternative_interpreter = None
     return "sensors_par"
 
 def acShutdown():

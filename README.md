@@ -172,6 +172,12 @@ Experiments and parameters are configured via `config.yml` and executed with `py
     python train.py load_offline_data=True Agent.use_offline_buffer=True dataset_path=<path_to_dataset>
     ```
 
+- **Train with Weights & Biases enabled**  
+  ```python
+  python train.py disable_wandb=False
+  ```
+
+
 ### Screen Capture Support  
 
 #### How to Use:  

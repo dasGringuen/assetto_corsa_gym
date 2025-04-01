@@ -31,3 +31,4 @@ omegaconf
 wandb
 pygame
 numba
+pyarrow

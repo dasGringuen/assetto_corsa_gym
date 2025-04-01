@@ -10,6 +10,8 @@ from gym import utils as gym_utils
 from datetime import datetime
 import time
 import yaml
+import json
+from pathlib import Path
 
 from AssettoCorsaEnv.ac_client import Client
 from AssettoCorsaEnv.track import Track
@@ -129,7 +131,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         'angular_velocity_y': np.pi,
         'angular_velocity_z': np.pi,
         'local_velocity_x': TOP_SPEED_MS,
-        'local_velocity_y': 10.,
+        'local_velocity_y': 20.,
         'local_velocity_z': 5.,
         'SlipAngle_fl': 25.,
         'SlipAngle_fr': 25.,
@@ -188,6 +190,19 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         # 'Dy_fl',
     ]
 
+    obs_extra_enabled_channels = [
+        'local_velocity_x',
+        'local_velocity_y',
+        'angular_velocity_y',
+        'steerAngle',
+        'accStatus',
+        'brakeStatus',
+        'world_position_x',
+        'world_position_y',
+        'yaw'
+    ]
+
+
     def __init__(self, config,
                  output_path: None,
                  ac_configs_path= None,
@@ -198,6 +213,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                  gap_const = 12., # gap penalization
                  penalize_gap = True,
                  save_observations=True,
+                 verbose=False
                  ):
         """ Assetto Corsa External Driver.
         """
@@ -213,7 +229,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.use_relative_actions = self.config.use_relative_actions
         self.enable_sensors = self.config.enable_sensors
         self.enable_out_of_track_calculation = enable_out_of_track_calculation
-        self.max_episode_steps = max_episode_steps
+        self._max_episode_steps = max_episode_steps
         self.enable_low_speed_termination = self.config.enable_low_speed_termination
         self.max_gap = max_gap
         self.gap_const = gap_const
@@ -223,6 +239,9 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.enable_out_of_track_termination = self.config.enable_out_of_track_termination
         self.add_previous_obs_to_state = self.config.add_previous_obs_to_state
         self.send_reset_at_start = self.config.send_reset_at_start
+        self.max_steer_rate = self.config.max_steer_rate
+        self.use_obs_extra = self.config.use_obs_extra
+        self.use_reference_line_in_reward = self.config.use_reference_line_in_reward
 
         # from the config
         self.use_ac_out_of_track = self.config.use_ac_out_of_track
@@ -246,6 +265,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.states = []      # some extra channels calculated. Without initialization
         self.history_obs = []  # history of observations
         self.episodes_stats = []
+        self.info = {}
 
         self.total_steps = 0
         self.n_episodes = 0
@@ -285,28 +305,34 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         #
         # for gym
         #
+        # Define physical and simulator parameters for each channel.
+        steer_map_file = Path(self.cars_paths) / self.car_name / 'steer_map.csv'
+        self.max_steer_deg = pd.read_csv(steer_map_file).values[1,1]
+        self.norm_steer_at_max = pd.read_csv(steer_map_file).values[1,0]
 
-        # In the pedal
-        #   The low bound is the falling edge of the pedal
-        # In the brake:
-        #    The low bound is the brake release
-        #    The upper bound is the brake press;
-        self.controls_rate_limit = np.array([[-600/180, 600/180],
-                                             [-1200/100, 1200/100], # the first is the falling edge of the pedal -> checked both
-                                             [-1200/100, 1200/100],  # the first is the brake release; the second the brake press;
+        # Original controls_rate_limit (in deg/s scaled per time step)
+        self.controls_rate_limit = np.array([[-self.max_steer_rate, self.max_steer_rate],
+                                              [-1200/100, 1200/100],  # pedal: (falling edge)
+                                              [-1200/100, 1200/100],  # brake: (release/press)
                                              ]) * (1/self.ctrl_rate)
 
 
-        # to artificially limit the controls
-        self.controls_min_values = np.array([-1.0,  -1.0,  -1.0])
-        self.controls_max_values = np.array([ 1.0,   1.0,   1.0])
-        self.limit_controls = False
-        if self.limit_controls:
-            self.controls_max_values = np.array([ 1.0,   0.5,  -1.0])
+        # Conversion factor (deg per normalized unit) for steering.
+        self.steering_scale_factor = self.max_steer_deg / self.norm_steer_at_max
+        # For pedal and brake: full range is already [0,1].
+        # Create a per-channel scale factor vector.
+        self.controls_scale_factor = np.array([self.steering_scale_factor, 1.0, 1.0])
+        # Adjust the rate-limit vector per channel (element-wise division along the second axis)
+        self.adjusted_controls_rate_limit = self.controls_rate_limit / self.controls_scale_factor[:, np.newaxis]
 
-        # actions space is always -1/1 for most algorithms
+        # Now, set the absolute limits for the simulator.
+        # For steering, use the normalized value corresponding to max steering.
+        self.controls_min_values = np.array([-self.norm_steer_at_max, -1.0, -1.0])
+        self.controls_max_values = np.array([ self.norm_steer_at_max,  1.0,  1.0])
+
+        # actions space is always -1 to 1 for most algorithms
         self.action_dim = 3
-        self.action_space = Box(low=np.array([-1.0,  -1.0,  -1.0]), high=np.array([1.0,  1.0,  1.0]))
+        self.action_space = Box(low=np.array([-1.0, -1.0, -1.0]), high=np.array([1.0, 1.0, 1.0]))
 
         state_dim = len( self.obs_enabled_channels )
         if self.enable_sensors:
@@ -328,19 +354,26 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         state_dim += 1
         self.state_dim = state_dim
 
-        logger.info(f"enable_sensors {self.enable_sensors}")
-        logger.info(f"use_relative_actions {self.use_relative_actions}")
-        logger.info(f"use_target_speed {self.use_target_speed}")
-        logger.info(f"use_ac_out_of_track: {self.use_ac_out_of_track}")
-        logger.info(f"recover_car_on_done: {self.recover_car_on_done}")
-        logger.info(f"enable_out_of_track_termination: {self.enable_out_of_track_termination}")
-        logger.info(f"enable_low_speed_termination: {self.enable_low_speed_termination}")
-        logger.info(f"enable_out_of_track_penalty: {self.enable_out_of_track_penalty}")
-        logger.info(f"enable_task_id_in_obs: {self.config.enable_task_id_in_obs}")
-        logger.info(f"track: {self.config.track}")
-        logger.info(f"car: {self.config.car}")
-        if self.config.enable_task_id_in_obs:
-            logger.info(f"task_id: {self.current_task_id} num_tasks: {self.tasks_ids.get_number_of_tasks()}")
+        self.obs_shape = (self.state_dim,)
+        if self.use_obs_extra:
+            self.obs_extra_shape = (len(self.obs_extra_enabled_channels),)  # (features,)
+        else:
+            self.obs_extra_shape = None
+
+        if verbose:
+            logger.info(f"enable_sensors {self.enable_sensors}")
+            logger.info(f"use_relative_actions {self.use_relative_actions}")
+            logger.info(f"use_target_speed {self.use_target_speed}")
+            logger.info(f"use_ac_out_of_track: {self.use_ac_out_of_track}")
+            logger.info(f"recover_car_on_done: {self.recover_car_on_done}")
+            logger.info(f"enable_out_of_track_termination: {self.enable_out_of_track_termination}")
+            logger.info(f"enable_low_speed_termination: {self.enable_low_speed_termination}")
+            logger.info(f"enable_out_of_track_penalty: {self.enable_out_of_track_penalty}")
+            logger.info(f"enable_task_id_in_obs: {self.config.enable_task_id_in_obs}")
+            logger.info(f"track: {self.config.track}")
+            logger.info(f"car: {self.config.car}")
+            if self.config.enable_task_id_in_obs:
+                logger.info(f"task_id: {self.current_task_id} num_tasks: {self.tasks_ids.get_number_of_tasks()}")
 
         logger.info(f"state_dim {self.state_dim}")
         logger.info(f"action_space: {self.action_space}")
@@ -351,9 +384,10 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
         # scale and obs channels
         self.obs_channels_scales = np.array([self.obs_channels_info[ch] for ch in self.obs_enabled_channels])
-        logger.info("Channels in the observation")
-        for ch in self.obs_enabled_channels:
-            logger.info("%s: scale %f" % (ch, self.obs_channels_info[ch]))
+        if verbose:
+            logger.info("Channels in the observation")
+            for ch in self.obs_enabled_channels:
+                logger.info("%s: scale %f" % (ch, self.obs_channels_info[ch]))
 
         # needed for stable baselines
         self.reward_range = (-np.inf, np.inf)
@@ -373,24 +407,20 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
     def preprocess_actions(self, actions, current_actions):
         if self.use_relative_actions:
-            max_delta_action = Box(low=self.controls_rate_limit[:,0], high=self.controls_rate_limit[:,1])
-            current_actions += actions * max_delta_action.high
+            # Fully vectorized update: scale each action by the adjusted per-channel rate limit.
+            new_actions = current_actions + actions * self.adjusted_controls_rate_limit[:, 1]
         else:
-            current_actions = actions
-
-        # clip to absolute limits
-        return np.clip(current_actions, self.controls_min_values, self.controls_max_values)
+            new_actions = actions
+        return np.clip(new_actions, self.controls_min_values, self.controls_max_values)
 
     def inverse_preprocess_actions(self, prev_abs_actions, current_abs_actions):
         if self.use_relative_actions:
-            max_delta_action = Box(low=self.controls_rate_limit[:,0], high=self.controls_rate_limit[:,1])
-            actions = current_abs_actions - prev_abs_actions
-            actions = actions / max_delta_action.high
-            actions = np.clip(actions, -1., 1.)
-            return actions
+            # Use the adjusted rate limit's upper bound for each channel.
+            max_delta = self.adjusted_controls_rate_limit[:, 1]
+            actions = (current_abs_actions - prev_abs_actions) / max_delta
+            return np.clip(actions, -1.0, 1.0)
         else:
-            actions = current_abs_actions
-            return np.clip(actions, self.controls_min_values, self.controls_max_values)
+            return np.clip(current_abs_actions, self.controls_min_values, self.controls_max_values)
 
     def set_actions(self, actions):
         """
@@ -406,7 +436,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.client.controls.set_controls(steer=self.actions[0], acc=self.actions[1], brake=self.actions[2])
         self.client.respond_to_server()
 
-    def step(self, actions=None):
+    def step(self, action=None):
         """
         If actions is None, the the policy should set the actions before by calling set_actions
 
@@ -415,8 +445,8 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.ep_steps += 1
         self.total_steps += 1
 
-        if actions is not None:
-            self.set_actions(actions)
+        if action is not None:
+            self.set_actions(action)
 
         state = self.client.step_sim()
         state["timestamp_env"] = time.perf_counter()
@@ -446,6 +476,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                          f'done: {state["done"]:.0f} LapDist: {state["LapDist"]:.0f} gap: {state["gap"]:.1f} '
                          )
 
+        self.info = buf_infos
         self.ep_reward += self.state["reward"]
         self.states.append(self.state.copy())
         return obs, self.state["reward"], self.state["done"], buf_infos
@@ -505,6 +536,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         done = 0
         buf_infos = {}
         buf_infos['terminated'] = False  # used by TD MPC
+        buf_infos['TimeLimit.truncated'] = False
 
         if state["done"]:
             ### TODO lap ended by AC.. se what to do here
@@ -522,9 +554,9 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             buf_infos['terminated'] = True
             done = 1
 
-        if self.max_episode_steps is not None:
-            if self.ep_steps > self.max_episode_steps:
-                logger.info(f"Terminate episode. Max steps {self.ep_steps}/{self.max_episode_steps}")
+        if self._max_episode_steps is not None:
+            if self.ep_steps > self._max_episode_steps:
+                logger.info(f"Terminate episode. Max steps {self.ep_steps}/{self._max_episode_steps}")
                 done = 1
                 buf_infos['TimeLimit.truncated'] = True
 
@@ -550,6 +582,9 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             logger.info(f"Race stopped. Gap too big ({gap})")
             done = 1
 
+        # extra channels in the info variable
+        if self.use_obs_extra:
+            buf_infos['obs_extra'] = self.get_extra_observations(state)
         if done:
             # used by SB3 save final observation where user can get it, then reset
             #buf_infos['terminal_observation'] = obs.copy()
@@ -558,14 +593,24 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             if self.recover_car_on_done:
                 self.recover_car()
 
+        state.update(buf_infos)
         state["done"] = done
         return state, buf_infos
 
-    def get_reward(self, state, actions_diff):
-        out_of_track = state["out_of_track_calc"]
-        #dist_to_border = state["dist_to_border"]
+    def get_extra_observations(self, state):
+        return np.array([state[channel] for channel in self.obs_extra_enabled_channels], dtype=np.float32)
 
-        r = 3.6 * state['speed'] * ( 1.0 - (np.abs( state["gap"]) / 12.00))
+    def get_extra_obs_index(self, channel_name):
+        return self.obs_extra_enabled_channels.index(channel_name)
+
+    def get_reward(self, state, actions_diff):
+        speed = 3.6 * np.array(state['speed'])
+        out_of_track = state["out_of_track_calc"]
+        dist_to_border = state["dist_to_border"]
+
+        r = speed
+        if self.use_reference_line_in_reward:
+            r *= ( 1.0 - (np.abs( state["gap"]) / 12.00))
         r /= 300. # normalize
 
         if self.penalize_actions_diff:
@@ -580,7 +625,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.client.respond_to_server()
         self.client.simulation_management.send_reset()
 
-    def reset(self, seed=None):
+    def reset(self, seed=None, verbose=False):
         self.end_of_episode_stats()
         self.stats_saved = False
 
@@ -592,12 +637,13 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             self.static_info = self.client.simulation_management.get_static_info()
             self.track_length = self.static_info["TrackLength"]
             self.ac_mod_config = self.client.simulation_management.get_config()
-            logger.info("Static info:")
-            for i in self.static_info:
-                logger.info(f"{i}: {self.static_info[i]}")
-            logger.info("AC Mod config:")
-            for i in self.ac_mod_config:
-                logger.info(f"{i}: {self.ac_mod_config[i]}")
+            if verbose:
+                logger.info("Static info:")
+                for i in self.static_info:
+                    logger.info(f"{i}: {self.static_info[i]}")
+                logger.info("AC Mod config:")
+                for i in self.ac_mod_config:
+                    logger.info(f"{i}: {self.ac_mod_config[i]}")
 
             if self.config.screen_capture_enable:
                 assert self.config.final_image_height == self.ac_mod_config["final_image_height"],\
@@ -629,11 +675,15 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             obs, _, _, _ = self.step(self.start_actions)
 
         self.states = []
-        obs, _, _, _ = self.step(self.start_actions)
+        obs, _, _, info = self.step(self.start_actions)
+        self.info = info
 
         self.ep_reward = 0.
         self.ep_steps = 0  # reset steps after flushing the actions
         return obs
+
+    def get_info(self):
+        return self.info.copy()
 
     def close(self):
         return self.end()
@@ -645,6 +695,9 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
     def get_current_image(self):
         return self.client.get_current_image()
+
+    def rand_act(self):
+        return torch.from_numpy(self.action_space.sample().astype(np.float32))
 
     def get_obs(self, state, history=None):
         """
@@ -733,19 +786,20 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         logger.info(f"reward: {state['reward']}")
 
     def end_of_episode_stats(self, verbose=True):
-        save_csv = True
+        save_csv = False
 
         if len(self.states) and self.stats_saved is False:
             ep = pd.DataFrame(self.states)
             if self.save_observations:
                 timestamp = f"{self.laps_path}/{get_date_timestemp()}"
-                s = {"states": self.states,
-                     "static_info": self.static_info.copy()
-                }
-                save_path = f"{timestamp}_raw_data.pkl"
-                to_pickle(s, save_path)
-                logger.info(f"Saved raw data to:")
-                logger.info(save_path)
+                df_states = pd.DataFrame(self.states)
+                states_save_path = f"{timestamp}_states.parquet"
+                df_states.to_parquet(states_save_path, engine="pyarrow", index=False)
+                logger.info(f"Saved raw data to: {states_save_path}")
+
+                if len(self.episodes_stats) == 0:
+                    with open(f"{self.laps_path}/{'static_info.json'}", "w") as f:
+                        json.dump(self.static_info, f, indent=4)  # Use indent=4 for readability
 
                 if save_csv:
                     save_csv_channels = ['steps', 'currentTime', 'done',
@@ -775,12 +829,18 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                   "speed_max": ep.speed.max(),
                   #"completedLaps": ep.completedLaps.values[-1],
                   "BestLap": ep['BestLap'].values[-1] / 1000.,
+                  "terminated": ep.terminated.values[-1]
             }
             for i, lapCount in enumerate(list(set( ep.LapCount ))):
                 r[f"LapNo_{i}"] = ep[ep.LapCount == lapCount]["iLastTime"].values[-1] / 1000 # to seconds
+            #  BestLap from the dictionary, excluding lap times that are 0 (incomplete laps)
+            r["ep_bestLapTime"] = min((time for key, time in r.items() if key.startswith("LapNo_") and time > 0), default=0)
             if verbose:
                 logger.info(f"total_steps: {self.total_steps} ep_steps: {self.ep_steps} ep_reward: {r['ep_reward']:6.1f} "
                             f"LapDist: {self.state['LapDist']:6.2f} packages lost {number_packages_lost} BestLap: {r['BestLap']}")
+                for i, lapCount in enumerate(list(set( ep.LapCount ))):
+                    logger.info(f"LapNo_{i}: {r[f'LapNo_{i}']:6.2f}")
+                logger.info(f"ep_bestLapTime: {r['ep_bestLapTime']:6.2f}")
                 logger.info(f"speed_mean: {r['speed_mean']:6.2f} speed_max: {r['speed_max']:6.2f} max_abs_gap: {gap_abs_max:6.2f} ep_laps: {len(set(ep.LapCount))}")
                 if len(ep) > 10:
                     dt = np.diff( ep.currentTime.values )[1:]
@@ -802,6 +862,27 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
     def get_history(self):
         states = self.states
         return pd.DataFrame(states)
+
+    def load_history(self, file_path):
+        """Loads trajectory data, inferring format from file extension."""
+        file_path = Path(file_path)
+        if file_path.suffix == ".parquet":
+            trajectory = pd.read_parquet(file_path, engine="pyarrow").to_dict(orient="records")
+
+            # Load static info from JSON
+            static_info_path = file_path.parent / "static_info.json"
+            assert static_info_path.exists(), f"Static info file not found: {static_info_path}"
+            with open(static_info_path, "r") as f:
+                static_info = json.load(f)
+        elif file_path.suffix == ".pkl":
+            with open(file_path, "rb") as f:
+                data = pickle.load(f)
+                trajectory = data["states"]
+                static_info = data["static_info"]
+        else:
+            raise ValueError(f"Unsupported file format: {file_path.suffix}")
+
+        return trajectory, static_info
 
     def set_track(self, track_name):
         logger.info(f"Setting track {track_name}")

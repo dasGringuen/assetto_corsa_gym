@@ -1,6 +1,7 @@
 <h1>Assetto Corsa Gym</span></h1>
 
-Plug-in installation instructions
+Plug-in installation instructions.
+This is the installation guide for **Windows**. For **Linux**, refer to [this guide](./INSTALL_Linux.md).
 
 ## **1. Assetto Corsa Plugin Installation**  
 

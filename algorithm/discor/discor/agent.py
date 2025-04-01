@@ -20,13 +20,15 @@ class Agent:
     def __init__(self, env, test_env, algo, log_dir, device, num_steps=3000000,
                  batch_size=256, memory_size=1_000_000,
                  update_interval=1, start_steps=10000, log_interval=10, checkpoint_freq=0,
-                 eval_interval=5000, num_eval_episodes=5, seed=0, use_offline_buffer=False, offline_buffer_size=1_000_000, wandb_logger=None):
+                 eval_interval=5000, num_eval_episodes=5, seed=0, use_offline_buffer=False, offline_buffer_size=1_000_000,
+                 wandb_logger=None, save_final_buffer=False):
 
         # Environment.
         self._env = env
         self._test_env = test_env
         self.checkpoint_freq = checkpoint_freq
         self.wandb_logger = wandb_logger
+        self.save_final_buffer = save_final_buffer
 
         self._env.seed(seed)
         self._test_env.seed(2**31-1-seed)
@@ -110,7 +112,7 @@ class Agent:
                     logger.info("Evaluating")
                     self.evaluate()
         finally:
-            self.save(os.path.join(self._model_dir, 'final'), save_buffer=True)
+            self.save(os.path.join(self._model_dir, 'final'), save_buffer=self.save_final_buffer)
 
     def update_model(self):
         train_stats = None
@@ -283,12 +285,9 @@ class Agent:
         )
 
     def load_pre_train_data(self, trajs_path, env):
-        brake_map_file = Path(self._env.ac_configs_path) / "cars" / self._env.config.car / 'brake_map.csv'
-        steer_map_file = Path(self._env.ac_configs_path) / "cars" / self._env.config.car / 'steer_map.csv'
-
         total_added_episodes = 0
 
-        env_data = DataLoader(env, trajs_path, steer_map_file, brake_map_file)
+        env_data = DataLoader(env, trajs_path)
         for ep in tqdm(range(env_data.trajectories_count)[:]):
             state = env_data.reset()
 
