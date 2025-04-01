@@ -28,8 +28,6 @@ Official implementation of the paper:
   - [Train with Weights & Biases](#train-with-weights--biases-enabled)
 - [Screen Capture Support](#screen-capture-support)
 - [Download Datasets](#download-datasets)
-- [Contributing](#contributing)
-- [License](#license)
 
 
 ## Overview
@@ -51,8 +49,8 @@ We base our SAC code on [this](https://github.com/toshikwa/discor.pytorch) imple
 ### **Apr 2025:**
 - Added support for **running Assetto Corsa and training agents natively on Linux** using **Proton**.  
   The Linux version offers **better execution speed** and is **more stable** than Windows, while yielding **identical results**.  
-  → See detailed installation instructions in [`INSTALL_Linux.md`](INSTALL_Linux.md).
-- Added support for **manual gearbox shifting** in the Gym interface.
+  → See detailed installation instructions in [INSTALL_Linux.md](INSTALL_Linux.md).
+- Added support for **manual gearbox shifting**.
 
 
 
@@ -273,3 +271,14 @@ You are very welcome to contribute to this project. Feel free to open an issue o
 ## License
 
 This project is licensed under the MIT License - see the `LICENSE` file for details. Note that the repository relies on third-party code, which is subject to their respective licenses.
+
+---
+## Acknowledgments
+
+- Adrian Remonda @dasgringuen (TU Graz)
+- Jiajun Xi @Nightwalkx
+- @alfredgu001324
+- Francesco Gatti (TII EuroRacing - Hipert)
+- Andrea Serafini (TII EuroRacing - Unimore)
+- Francesco Moretti (TII EuroRacing - Unimore)
+- Ayoub Raji (TII EuroRacing - Unimore)

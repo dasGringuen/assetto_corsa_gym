@@ -131,10 +131,7 @@ cat /proc/bus/input/devices
 ```sh
 sudo chmod 666 /dev/input/event<NUM>
 ```
-
-
-### **Step 3.4: Revise event_path in vjoy_linux.py** 
-Install `pip  install evdev` in Python and the XBox device will be automatically selected. To debug use the following:
+Install `pip  install evdev` in Python and the XBox device will be automatically selected. To debug use the following.
 
 ### **Step 3.5 (Optional): Revise Device Axis Codes and Input Ranges in `vjoy_linux.py`**
 

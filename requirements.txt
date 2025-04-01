@@ -32,3 +32,4 @@ wandb
 pygame
 numba
 pyarrow
+evdev; sys_platform == "linux"
