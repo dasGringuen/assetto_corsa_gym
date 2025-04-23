@@ -15,6 +15,19 @@ We actively welcome your pull requests.
 We use GitHub issues to track public bugs. Please ensure your description is
 clear and has sufficient instructions to be able to reproduce the issue.
 
+## Logs
+Useful debug messages can be found in:
+
+- Windows:
+  ```sh
+  C:\Users\<user>\Documents\Assetto Corsa\logs\py_log.txt
+  ```
+
+- Linux (via Steam Proton):
+  ```sh
+  /home/<user>/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/users/steamuser/Documents/Assetto Corsa/logs/py_log.txt
+  ```
+
 ## License
 By contributing to this repository, you agree that your contributions will be licensed
 under the `LICENSE` file in the root directory of this source tree.
