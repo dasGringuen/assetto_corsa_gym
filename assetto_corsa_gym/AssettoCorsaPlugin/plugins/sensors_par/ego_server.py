@@ -75,8 +75,8 @@ class EgoServer:
         self.config = config
         self.total_errors_out_of_sync = 0
         self.total_steps = 0
-        # self.timer = PreciseTimer(1 / self.config.sampling_freq) # runs in a separate thread
-        # self.timer.set_function(self.tick)
+        self.timer = PreciseTimer(1 / self.config.sampling_freq) # uncomment this
+        self.timer.set_function(self.tick) # uncomment this
         self.socket_open = False
 
         # ----- Create the named events -----
@@ -93,7 +93,7 @@ class EgoServer:
         self.thread.start()
 
     def close(self):
-        # self.timer.stop()
+        self.timer.stop() # unsure if this should be uncommented
         time.sleep(0.5)
 
         if self.server_socket and self.socket_open:
@@ -114,7 +114,7 @@ class EgoServer:
         logging.info("[EGO SERV] Start ego server socket on: {}:{}".format(self.host, self.port))
         logging.info("[EGO SERV] Tick {} Hz Ego: {} Hz".format(self.config.sampling_freq, self.config.ego_sampling_freq))
         try:
-            #self.timer.start()
+            self.timer.start() # add this here
             while self.server_socket and self.socket_open:
                 addr = None
                 try:
@@ -145,7 +145,7 @@ class EgoServer:
                         self.car.total_errors_out_of_sync = 0
                     elif data == "reset":
                         logger.info("Resetting car")
-                    else:
+                    else: # receiving car controls
                         self.profiler.add_event("reply")
                         data = eval(data)
                         self.current_client.update(data)
@@ -185,19 +185,19 @@ class EgoServer:
                 self.close()
 
     def tick(self):
-        #self.profiler.add_event("tick")
+        self.profiler.add_event("tick")
         # save telemetry
         if self.telemetry and self.telemetry.recording:
             if (self.total_steps % (self.config.sampling_freq // self.config.telemetry_sampling_freq)) == 0:
                 self.car.update(self.track)
                 self.telemetry.step(self.car.copy())
 
-        if self.config.screen_capture_enable and (self.total_steps % (self.config.sampling_freq // self.config.screen_capture_freq)) == 0:
-            # Signal screen capture process to capture a new image
-            win32event.SetEvent(self.hTriggerImageCapture)
+        # if self.config.screen_capture_enable and (self.total_steps % (self.config.sampling_freq // self.config.screen_capture_freq)) == 0:
+        #     # Signal screen capture process to capture a new image
+        #     win32event.SetEvent(self.hTriggerImageCapture)
 
-            # Every other tick (i.e. at 25Hz) also signal the 25Hz tick:
-            win32event.SetEvent(self.hEgoSamplingEvent)
+        #     # Every other tick (i.e. at 25Hz) also signal the 25Hz tick:
+        #     win32event.SetEvent(self.hEgoSamplingEvent)
 
         ## if control loop down sample, send telemetry to client
         if self.current_client and self.current_client.initialized:
@@ -212,6 +212,6 @@ class EgoServer:
                     self.current_client = None
                 except Exception:
                     logger.exception("An error occurred in the tick function")
-                    #self.timer.stop()
+                    self.timer.stop()
 
         self.total_steps += 1
