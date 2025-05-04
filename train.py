@@ -130,7 +130,7 @@ def main():
         agent.pre_train()
 
     if args.load_path is not None:
-        load_buffer = False if args.test else False
+        load_buffer = False if args.test else True
         agent.load(args.load_path, load_buffer=load_buffer)
     
     '''if args.load_path is not None:
@@ -143,6 +143,9 @@ def main():
     if args.test:
         agent._env.set_eval_mode()
         agent.evaluate()
+        save_path = os.path.join("C:/Users/Jigyas Sharma/Desktop/fork/assetto_corsa_gym/outputs", "after_test")
+        os.makedirs(save_path, exist_ok=True)
+        agent.save(save_path, save_buffer=True)
         logger.info("done evaluation")
     else:
         agent.run()
