@@ -20,8 +20,8 @@ class Agent:
     def __init__(self, env, test_env, algo, log_dir, device, num_steps=3000000,
                  batch_size=256, memory_size=1_000_000,
                  update_interval=1, start_steps=10000, log_interval=10, checkpoint_freq=0,
-                 eval_interval=5000, num_eval_episodes=5, seed=0, use_offline_buffer=False, offline_buffer_size=1_000_000,
-                 wandb_logger=None, save_final_buffer=False):
+                 eval_interval=5000, num_eval_episodes=5, seed=0, use_offline_buffer=True, offline_buffer_size=1_000_000,
+                 wandb_logger=None, save_final_buffer=True):
 
         # Environment.
         self._env = env
@@ -188,7 +188,7 @@ class Agent:
 
                 if self.checkpoint_freq and (self._steps % self.checkpoint_freq == 0):
                     logger.info(f"checkpointing model {self._steps} steps")
-                    self.save(os.path.join(self._model_dir, "checkpoints", f"step_{self._steps:08d}"), save_buffer=False)
+                    self.save(os.path.join(self._model_dir, "checkpoints", f"step_{self._steps:08d}"), save_buffer=True)
         except TimeoutError:
             logger.exception("Agent TimeoutError")
         finally:
@@ -215,12 +215,12 @@ class Agent:
         if env_ep_stats["BestLap"] < self.best_lap_time:
             logger.info(f"new best lap time {env_ep_stats['BestLap']}")
             self.best_lap_time = env_ep_stats["BestLap"]
-            self.save(os.path.join(self._model_dir, 'best_lap_time'), save_buffer=False)
+            self.save(os.path.join(self._model_dir, 'best_lap_time'), save_buffer=True)
 
         if env_ep_stats["ep_reward"] > self.best_reward:
             logger.info(f"new best reward {env_ep_stats['ep_reward']}")
             self.best_reward = env_ep_stats["ep_reward"]
-            self.save(os.path.join(self._model_dir, 'best_reward'), save_buffer=False)
+            self.save(os.path.join(self._model_dir, 'best_reward'), save_buffer=True)
 
         eval_metrics = self.common_metrics()
         eval_metrics.update(ep_stats)
