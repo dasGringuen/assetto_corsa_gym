@@ -143,9 +143,6 @@ def main():
     if args.test:
         agent._env.set_eval_mode()
         agent.evaluate()
-        save_path = os.path.join("C:/Users/Jigyas Sharma/Desktop/fork/assetto_corsa_gym/outputs", "after_test")
-        os.makedirs(save_path, exist_ok=True)
-        agent.save(save_path, save_buffer=True)
         logger.info("done evaluation")
     else:
         agent.run()

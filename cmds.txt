@@ -1,0 +1,1 @@
+python train.py --load_path "C:\Users\Jigyas Sharma\Desktop\fork\assetto_corsa_gym\outputs\20250503_215846.062583_" AssettoCorsa.track=monza AssettoCorsa.car=bmw_z4_gt3
