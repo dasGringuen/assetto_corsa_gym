@@ -506,58 +506,72 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
         self.state, buf_infos = self.expand_state(state)
 
-        # add the current absolute actions to the state
+        # Add the current absolute actions to the state
         for i in range(self.action_dim):
             self.state[f'current_action_abs_{i:01d}'] = self.current_actions[i]
 
-        # save input actions
+        # Save input actions
         for i in range(self.action_dim):
             self.state[f'actions_{i:01d}'] = self.raw_actions[i]
 
-        # create obs
+        # Create obs
         obs, actions_diff = self.get_obs(state, self.states)
 
-        # Reward
+        # Compute reward
         self.state["reward"] = self.get_reward(self.state, actions_diff).item()
 
         # --- Termination logic ---
         done = False
 
-        #Max episode step limit
+        # Max episode step limit
         if self._max_episode_steps is not None and self.ep_steps >= self._max_episode_steps:
             done = True
 
-        # Out of track + low speed (stuck)
+        # Out of track + low speed → stuck detection
         out_of_track = self.state.get("out_of_track_calc", False)
         speed = self.state.get("speed", 0.0)
 
-        if self.enable_out_of_track_termination:
-            if out_of_track and speed < 1.0:  # Stuck off track
+        if out_of_track:
+            if speed < self.stuck_velocity_threshold:
+                self.out_of_track_stuck_time += self.dt
+            else:
+                self.out_of_track_stuck_time = 0.0
+        else:
+            self.out_of_track_stuck_time = 0.0
+
+        # If stuck for too long → force terminate
+        if self.out_of_track_stuck_time >= self.out_of_track_stuck_threshold:
+            logger.info(f"Out of track and stuck for {self.out_of_track_stuck_time:.1f}s → initiating reset.")
+            done = True
+            self.state["terminated"] = True  # Important for replay buffer and episode stats
+        else:
+            self.state["terminated"] = False
+
+        # Regular out of track + low speed termination (if enabled and not already terminated)
+        if self.enable_out_of_track_termination and not self.state["terminated"]:
+            if out_of_track and speed < 1.0:
                 done = True
 
-        # Max laps (optional)
+        # Max laps limit
         if self.max_laps_number is not None:
             if self.state.get("LapCount", 0) >= self.max_laps_number:
                 done = True
 
-        # Manual recovery (optional hook if you ever want)
-        # if self.recover_car_on_done:
-        #     done = True
-
-        # --- store done ---
+        # Store done flag
         self.state["done"] = done
 
         if (self.ep_steps % 50) == 0:
-            logger.debug(f't: {self.ep_steps} speed: {state["speed"]:.2f}, oot: {state["out_of_track"]} '
+            logger.debug(f't: {self.ep_steps} speed: {speed:.2f}, oot: {out_of_track} '
                         f's: {self.actions[0]:.2f} a: {self.actions[1]:.2f} b: {self.actions[2]:.2f} '
-                        f'reward: {state["reward"]:.3f} '
-                        f'done: {done:.0f} LapDist: {state["LapDist"]:.0f} gap: {state["gap"]:.1f}')
+                        f'reward: {self.state["reward"]:.3f} done: {done:.0f} '
+                        f'LapDist: {state["LapDist"]:.0f} gap: {state["gap"]:.1f} stuck_time: {self.out_of_track_stuck_time:.1f}')
 
         self.info = buf_infos
         self.ep_reward += self.state["reward"]
         self.states.append(self.state.copy())
 
         return obs, self.state["reward"], done, buf_infos
+
 
 
     def expand_state(self, state):
