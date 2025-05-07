@@ -50,7 +50,7 @@ def main():
         work_dir = os.path.abspath(args.work_dir) + os.sep + config.track + os.sep + config.car + os.sep
         os.makedirs(work_dir, exist_ok=True)
     else:
-        work_dir = "outputs" + os.sep + datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:-3]
+        work_dir = "outputs" + os.sep + datetime.now().strftime('%Y%m%d_%H%M%S.%f_rep')[:-3]
         work_dir = os.path.abspath(work_dir) + os.sep
         os.makedirs(work_dir, exist_ok=True)
     config.work_dir = work_dir
@@ -132,7 +132,14 @@ def main():
     if args.load_path is not None:
         load_buffer = False if args.test else True
         agent.load(args.load_path, load_buffer=load_buffer)
-
+    
+    '''if args.load_path is not None:
+        # Automatically set load_buffer = False if replay_buffer.pkl does not exist
+        replay_buffer_path = os.path.join(args.load_path, "replay_buffer.pkl")
+        load_buffer = os.path.exists(replay_buffer_path)
+        agent.load(args.load_path, load_buffer=load_buffer)
+    '''
+    
     if args.test:
         agent._env.set_eval_mode()
         agent.evaluate()
