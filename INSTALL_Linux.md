@@ -39,11 +39,29 @@ Click `Show game list`, choose `GE-Proton9-2` as the compatibility tool, and cli
 
 Then reboot Steam, you would expect GE-Proton9-2 to be the default Proton version under `Manage > Compatibility`. If not, you can find GE-Proton9-2 in the list and choose it as the Proton version. 
 
+#### **Step 4: Install missing fonts**
+Install missing fonts with the following scripts:
+```sh
+wget -O "$HOME/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/windows/Fonts/Verdana.ttf" \
+      https://raw.githubusercontent.com/matomo-org/travis-scripts/master/fonts/Verdana.ttf
+
+wget -O "$HOME/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/windows/Fonts/segoeuiz.ttf" \
+      https://raw.githubusercontent.com/xamarin/evolve-presentation-template/master/Fonts/Segoe%20UI/segoeuiz.ttf
+
+wget -O "$HOME/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/windows/Fonts/segoeui.ttf" \
+      https://raw.githubusercontent.com/xamarin/evolve-presentation-template/master/Fonts/Segoe%20UI/segoeui.ttf
+
+wget -O "$HOME/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/windows/Fonts/verdanai.ttf" \
+      https://raw.githubusercontent.com/dolbydu/font/master/Sans/Verdana/verdanai.ttf
+```
+
 ### **1.4 Initiate Assetto Corsa**
 Start Assetto Corsa, and expect to wait about 3 to 5 minutes for Proton to install and initialize.
 If the program crashes, start Steam from the command line. The installation details of Proton will be displayed when Assetto Corsa is running. A quick fix for Proton crashes is to switch to a different version.
 
 **Note**: On some systems, the Assetto Corsa main screen worked, but the race would not start. Switching to GE-Proton9-26 resolved the issue.
+
+
 
 ## **2. Content Manager Installation**
 ### **2.1 Download Content Manager**
@@ -107,62 +125,6 @@ In the setting page, for `Assetto Corsa root folder`, set
 Rename the current `AssettoCorsa.exe` (the content manager) into `AssettoCorsa_content_manager.exe`, and rename `AssettoCorsaBackup.exe` (the "true" AC game) into `AssettoCorsa.exe`.  
 
 
-## **3. Setup xbox input device**
-Linux uses virtual xbox as a substitute for Windows Vjoy to communicate with AC server. 
-### **Step 3.1: Install xboxdrv**
-```sh
-sudo apt-get install xboxdrv
-```
-### **Step 3.2: Turn on virtual xbox**
-```sh
-sudo xboxdrv --daemon --silent --mimic-xpad --type xbox360 --dbus disabled
-```
-### **Step 3.3: Figure out correct device input for virtual xbox**
-```sh
-ls /dev/input
-```
-There will be a list of `event<NUM>` with one of them mapped with virtual xbox. 
-
-Locate the input device index number for virtual xbox by searching with
-```sh
-cat /proc/bus/input/devices
-```
-### **Step 3.4: Set write permission to device**
-```sh
-sudo chmod 666 /dev/input/event<NUM>
-```
-Install `pip  install evdev` in Python and the XBox device will be automatically selected. To debug use the following.
-
-### **Step 3.5 (Optional): Revise Device Axis Codes and Input Ranges in `vjoy_linux.py`**
-
-1. Run `test_maps_creator.ipynb`.  
-   You should see an output like:
-
-   ```
-   Closest Steering Command to reach 240.0°: 0.5342
-   ```
-
-   It will also display a figure showing the input-output mapping in Assetto Corsa:
-
-   <img src="docs/steer_ranges_f317.jpg" alt="Steering Range Mapping" width="400"/>
-
-   If the result matches, it means the Xbox controller is properly configured.  
-   If not, proceed to the next steps.
-
-2. Install `evtest` and use it to identify the event code of your device:
-
-   ```sh
-   sudo apt-get install evtest
-   sudo evtest /dev/input/event<NUM>
-   ```
-
-3. If needed, update the axis codes (lines 69–79) and input ranges (lines 81–98) in:
-
-   - [`AssettoCorsaEnv/vjoy_linux.py`](./assetto_corsa_gym/AssettoCorsaEnv/vjoy_linux.py)
-   - [`AssettoCorsaPlugin/sensors_par/vjoy_linux.py`](./assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/vjoy_linux.py)
-
-   Also update the **AXLE** settings for `STEER`, `THROTTLE`, and `BRAKES` in [`Vjoy_linux.ini`](./assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/Vjoy_linux.ini) if necessary.
-
 ---
 ## **4. Assetto Corsa game configuration**
 ### **4.1 Copy the Plugin Files**  
@@ -187,26 +149,39 @@ Copy the necessary configuration files from:
 assetto_corsa_gym\AssettoCorsaPlugin\windows-libs
 ```
 
-- **VJoy Configuration**  
-  - Copy `Vjoy_linux.ini` to:  
-    ```sh
-    <path/to/steamapps>\steamapps\common\assettocorsa\cfg\controllers\savedsetups
-    ```
-- **WASD Controls**  
-  - Copy `WASD.ini` to:  
-    ```sh
-    <path/to/steamapps>\steamapps\common\assettocorsa\cfg\controllers\savedsetups
-    ```
-- **DLLs and Library Folders**  
-  - Copy these folders (Python socket library) to:  
-    ```sh
-    <path/to/steamapps>\steamapps\common\assettocorsa\steamapps\common\assettocorsa\system\x64
-    ```
+```sh
+mkdir -p "$HOME/.local/share/Steam/steamapps/common/assettocorsa/cfg/controllers/savedsetups"
+mkdir -p "$HOME/.local/share/Steam/steamapps/common/assettocorsa/system/x64"
 
+
+cp assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/Vjoy_linux.ini \
+   "$HOME/.local/share/Steam/steamapps/common/assettocorsa/cfg/controllers/savedsetups/"
+
+cp assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/WASD.ini \
+   "$HOME/.local/share/Steam/steamapps/common/assettocorsa/cfg/controllers/savedsetups/"
+
+cp -r assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/DLLs \
+   "$HOME/.local/share/Steam/steamapps/common/assettocorsa/system/x64/"
+
+
+cp -r assetto_corsa_gym/AssettoCorsaPlugin/windows-libs/Lib \
+   "$HOME/.local/share/Steam/steamapps/common/assettocorsa/system/x64"
+
+```
+
+
+## **3. Setup xbox input device**
+Linux uses virtual xbox as a substitute for Windows Vjoy to communicate with AC server. 
+### **Step 3.1: Install xboxdrv**
+```sh
+sudo apt-get install xboxdrv
+```
+### **Step 3.2: Turn on virtual xbox**
+```sh
+sudo xboxdrv --daemon --silent --mimic-xpad --type xbox360 --dbus disabled
+```
 
 ### **4.3 Configuring Assetto Corsa**  
-
-
 
 #### **4.3.1: Enable the Plugin**  
 1. Open **Assetto Corsa**  
@@ -216,7 +191,7 @@ assetto_corsa_gym\AssettoCorsaPlugin\windows-libs
 #### **4.3.2 Configure Controls**  
 1. Navigate to **Options > Controls**  
 2. Ensure that both **vJoy** and **WASD** are available  
-3. Load **vJoy** as the active input
+3. Load **vJoy Linux** as the active input
 
 #### **4.3.3 Set Video and Display Settings**  
 - **Frame Rate Limit:** `50 FPS`  
@@ -248,12 +223,27 @@ assetto_corsa_gym\AssettoCorsaPlugin\windows-libs
 | Penalties                 | **ON** |
 
 ---
-## **5. Run AC Game**
-Note: when first launched the game, it is possible that you will be prompted `Failed to lauch the race` due to `Font "C:\windows\Fonts\verdana.ttf" is missing.` 
-1. Click "Yes" and you will download `ac-fonts.zip`
-2. Extract all `.ttf` files in folder `system` in `ac-fonts.zip`
-3. Move all `.ttf` files to 
-    ```sh
-    <path/to/steamapps>/steamapps/common/assettocorsa/content/fonts/system`
-    ```
-4. Relaunch the AC game. 
+## **5. Test interface**
+1. Start AC
+
+2. Run `test_maps_creator.ipynb`.  
+   You should see an output like:
+
+   ```
+   Closest Steering Command to reach 240.0°: 0.5342
+   ```
+
+   It will also display a figure showing the input-output mapping in Assetto Corsa:
+
+   <img src="docs/steer_ranges_f317.jpg" alt="Steering Range Mapping" width="400"/>
+
+   If the result matches, it means the Xbox controller is properly configured.
+
+
+## **6. Report bugs**
+
+### Plugin:
+   - Paste the logs from:
+      ```sh
+      cat "$HOME/.local/share/Steam/steamapps/compatdata/244210/pfx/drive_c/users/steamuser/Documents/Assetto Corsa/logs/py_log.txt"
+      ```
