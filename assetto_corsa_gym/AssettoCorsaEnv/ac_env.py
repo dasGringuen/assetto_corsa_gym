@@ -242,6 +242,9 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.max_steer_rate = self.config.max_steer_rate
         self.use_obs_extra = self.config.use_obs_extra
         self.use_reference_line_in_reward = self.config.use_reference_line_in_reward
+        self.recovery_reward_bonus = 0.1
+        self.was_out_of_track_last_step = False
+
 
         # from the config
         self.use_ac_out_of_track = self.config.use_ac_out_of_track
@@ -282,6 +285,10 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             os.makedirs(self.laps_path, exist_ok=True)
 
         self.dt = 1. / self.ctrl_rate
+        self.out_of_track_stuck_time = 0.0
+        self.out_of_track_stuck_threshold = 9.0  # seconds to consider "totally stuck"
+        self.stuck_velocity_threshold = 1.0  # m/s velocity below which we consider "stuck"
+
 
         # load track  # TODO: use pytorch?
         self.track = Track(track_file_path=self.track_file, track_grid_file=self.track_grid_file,
@@ -436,7 +443,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.client.controls.set_controls(steer=self.actions[0], acc=self.actions[1], brake=self.actions[2])
         self.client.respond_to_server()
 
-    def step(self, action=None):
+    '''def step(self, action=None):
         """
         If actions is None, the the policy should set the actions before by calling set_actions
 
@@ -479,7 +486,93 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.info = buf_infos
         self.ep_reward += self.state["reward"]
         self.states.append(self.state.copy())
-        return obs, self.state["reward"], self.state["done"], buf_infos
+        return obs, self.state["reward"], self.state["done"], buf_infos'''
+
+    #updated step
+    def step(self, action=None):
+        """
+        If actions is None, then the policy should set the actions before by calling set_actions.
+
+        Blocks until the sim returns the next state.
+        """
+        self.ep_steps += 1
+        self.total_steps += 1
+
+        if action is not None:
+            self.set_actions(action)
+
+        state = self.client.step_sim()
+        state["timestamp_env"] = time.perf_counter()
+
+        self.state, buf_infos = self.expand_state(state)
+
+        # Add the current absolute actions to the state
+        for i in range(self.action_dim):
+            self.state[f'current_action_abs_{i:01d}'] = self.current_actions[i]
+
+        # Save input actions
+        for i in range(self.action_dim):
+            self.state[f'actions_{i:01d}'] = self.raw_actions[i]
+
+        # Create obs
+        obs, actions_diff = self.get_obs(state, self.states)
+
+        # Compute reward
+        self.state["reward"] = self.get_reward(self.state, actions_diff).item()
+
+        # --- Termination logic ---
+        done = False
+
+        # Max episode step limit
+        if self._max_episode_steps is not None and self.ep_steps >= self._max_episode_steps:
+            done = True
+
+        # Out of track + low speed → stuck detection
+        out_of_track = self.state.get("out_of_track_calc", False)
+        speed = self.state.get("speed", 0.0)
+
+        if out_of_track:
+            if speed < self.stuck_velocity_threshold:
+                self.out_of_track_stuck_time += self.dt
+            else:
+                self.out_of_track_stuck_time = 0.0
+        else:
+            self.out_of_track_stuck_time = 0.0
+
+        # If stuck for too long → force terminate
+        if self.out_of_track_stuck_time >= self.out_of_track_stuck_threshold:
+            logger.info(f"Out of track and stuck for {self.out_of_track_stuck_time:.1f}s → initiating reset.")
+            done = True
+            self.state["terminated"] = True  # Important for replay buffer and episode stats
+        else:
+            self.state["terminated"] = False
+
+        # Regular out of track + low speed termination (if enabled and not already terminated)
+        if self.enable_out_of_track_termination and not self.state["terminated"]:
+            if out_of_track and speed < 1.0:
+                done = True
+
+        # Max laps limit
+        if self.max_laps_number is not None:
+            if self.state.get("LapCount", 0) >= self.max_laps_number:
+                done = True
+
+        # Store done flag
+        self.state["done"] = done
+
+        if (self.ep_steps % 50) == 0:
+            logger.debug(f't: {self.ep_steps} speed: {speed:.2f}, oot: {out_of_track} '
+                        f's: {self.actions[0]:.2f} a: {self.actions[1]:.2f} b: {self.actions[2]:.2f} '
+                        f'reward: {self.state["reward"]:.3f} done: {done:.0f} '
+                        f'LapDist: {state["LapDist"]:.0f} gap: {state["gap"]:.1f} stuck_time: {self.out_of_track_stuck_time:.1f}')
+
+        self.info = buf_infos
+        self.ep_reward += self.state["reward"]
+        self.states.append(self.state.copy())
+
+        return obs, self.state["reward"], done, buf_infos
+
+
 
     def expand_state(self, state):
         state["currentTime"] = state["currentTime"] / 1000.
@@ -603,7 +696,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
     def get_extra_obs_index(self, channel_name):
         return self.obs_extra_enabled_channels.index(channel_name)
 
-    def get_reward(self, state, actions_diff):
+    '''def get_reward(self, state, actions_diff):
         speed = 3.6 * np.array(state['speed'])
         out_of_track = state["out_of_track_calc"]
         dist_to_border = state["dist_to_border"]
@@ -617,7 +710,40 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
             action_difference_penalty = np.linalg.norm(actions_diff, ord=2)
             r -= action_difference_penalty * self.penalize_actions_diff_coef
         r = r.reshape(-1)  # [N, 1] -> [N]
+        return r'''
+    
+    #Reward for out of track #JIGYAS
+    def get_reward(self, state, actions_diff):
+        speed = 3.6 * np.array(state['speed'])
+        out_of_track = state["out_of_track_calc"]
+        dist_to_border = state["dist_to_border"]
+
+        r = speed
+        if self.use_reference_line_in_reward:
+            r *= ( 1.0 - (np.abs(state["gap"]) / 12.00))
+        r /= 300.  # normalize
+
+        if self.penalize_actions_diff:
+            action_difference_penalty = np.linalg.norm(actions_diff, ord=2)
+            r -= action_difference_penalty * self.penalize_actions_diff_coef
+
+        # Recovery reward bonus
+        recovered = False
+        if self.was_out_of_track_last_step and not out_of_track:
+            recovered = True
+
+        if recovered:
+            r += self.recovery_reward_bonus
+            logger.info("[Reward] Recovery bonus applied!")
+
+        self.was_out_of_track_last_step = out_of_track
+
+        r = r.reshape(-1)  # [N, 1] -> [N]
         return r
+
+
+
+
 
     def recover_car(self):
         logger.info("Recover car")
@@ -625,7 +751,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         self.client.respond_to_server()
         self.client.simulation_management.send_reset()
 
-    def reset(self, seed=None, verbose=False):
+    '''def reset(self, seed=None, verbose=False):
         self.end_of_episode_stats()
         self.stats_saved = False
 
@@ -680,7 +806,76 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
 
         self.ep_reward = 0.
         self.ep_steps = 0  # reset steps after flushing the actions
+        return obs'''
+
+    def reset(self, seed=None, verbose=False):
+        self.end_of_episode_stats()
+        self.stats_saved = False
+
+        self.n_episodes += 1
+        logger.info(f"Reset AC. Episode {self.n_episodes} total_steps: {self.total_steps}")
+
+        if self.n_episodes == 1:
+            self.static_info = self.client.simulation_management.get_static_info()
+            self.track_length = self.static_info["TrackLength"]
+            self.ac_mod_config = self.client.simulation_management.get_config()
+            if verbose:
+                logger.info("Static info:")
+                for i in self.static_info:
+                    logger.info(f"{i}: {self.static_info[i]}")
+                logger.info("AC Mod config:")
+                for i in self.ac_mod_config:
+                    logger.info(f"{i}: {self.ac_mod_config[i]}")
+
+            if self.config.screen_capture_enable:
+                assert self.config.final_image_height == self.ac_mod_config["final_image_height"]
+                assert self.config.final_image_width == self.ac_mod_config["final_image_width"]
+                assert self.config.color_mode == self.ac_mod_config["color_mode"]
+
+            assert self.config.ego_sampling_freq == self.ac_mod_config["ego_sampling_freq"]
+            assert self.static_info["TrackFullName"] == self.track_name
+            assert self.static_info["CarName"] == self.car_name
+
+        self.client.reset(self.send_reset_at_start)
+
+        if not getattr(self, "eval_mode", False) and np.random.rand() < 0.10:
+            logger.info("[Recovery Training] Perturbing start position for recovery training")
+
+            car_state = self.client.simulation_management.get_car_state()
+
+            lateral_offset = np.random.uniform(-5.0, 5.0)
+
+            yaw_offset = np.deg2rad(np.random.uniform(-15.0, 15.0))
+
+            new_x = car_state["world_position_x"] + lateral_offset
+            new_yaw = car_state["yaw"] + yaw_offset
+
+            self.client.simulation_management.set_car_position(new_x, 
+                                                            car_state["world_position_y"], 
+                                                            car_state["world_position_z"],
+                                                            new_yaw, 
+                                                            car_state["pitch"], 
+                                                            car_state["roll"])
+
+        self.termination_counter = int(TERMINAL_JUDGE_TIMEOUT * self.ctrl_rate)
+        self.episode_saved = False
+        self.is_out_of_track = False
+        self.current_actions = np.array([0.0, -1.0, -1.0])
+        self.start_actions = np.array([0.0, -1.0, -1.0])
+
+        self.ep_steps = 0
+
+        for _ in range(2):
+            obs, _, _, _ = self.step(self.start_actions)
+
+        self.states = []
+        obs, _, _, info = self.step(self.start_actions)
+        self.info = info
+
+        self.ep_reward = 0.
+        self.ep_steps = 0
         return obs
+
 
     def get_info(self):
         return self.info.copy()
@@ -785,7 +980,7 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
         logger.info(f"VehicleSpeed: {state['speed']}")
         logger.info(f"reward: {state['reward']}")
 
-    def end_of_episode_stats(self, verbose=True):
+    '''def end_of_episode_stats(self, verbose=True):
         save_csv = False
 
         if len(self.states) and self.stats_saved is False:
@@ -845,6 +1040,87 @@ class AssettoCorsaEnv(Env, gym_utils.EzPickle):
                 if len(ep) > 10:
                     dt = np.diff( ep.currentTime.values )[1:]
                     logger.info(f"dt avr: {dt.mean():.3f} std: {dt.std():.3f} min: {dt.min():.3f} max: {dt.max():.3f}")
+            if number_packages_lost:
+                logger.warning(f"Packages lost in the communication with the server. {number_packages_lost} packages lost")
+
+            self.episodes_stats.append(r.copy())
+            pd.DataFrame(self.episodes_stats).to_csv(self.output_path + os.sep + "episodes_stats.csv", index=False)
+            self.stats_saved = True
+            return r
+        else:
+            return {}'''
+
+    def end_of_episode_stats(self, verbose=True):
+        save_csv = False
+
+        if len(self.states) and self.stats_saved is False:
+            ep = pd.DataFrame(self.states)
+            if self.save_observations:
+                timestamp = f"{self.laps_path}/{get_date_timestemp()}"
+                df_states = pd.DataFrame(self.states)
+                states_save_path = f"{timestamp}_states.parquet"
+                df_states.to_parquet(states_save_path, engine="pyarrow", index=False)
+                logger.info(f"Saved raw data to: {states_save_path}")
+
+                if len(self.episodes_stats) == 0:
+                    with open(f"{self.laps_path}/{'static_info.json'}", "w") as f:
+                        json.dump(self.static_info, f, indent=4)  # Use indent=4 for readability
+
+                if save_csv:
+                    save_csv_channels = ['steps', 'currentTime', 'done',
+                                         'speed', 'reward', 'gap',
+                                         'world_position_y',
+                                         'world_position_x',
+                                         'RPM',
+                                         'steerAngle', 'brakeStatus', 'accStatus', 'actualGear',
+                                         'packetId', 'velocity_x', 'velocity_y', 'velocity_z',
+                                         'yaw', 'roll', 'angular_velocity_y', 'angular_velocity_x',
+                                         'LapCount',  'LapDist', 'going_backwards',
+                                         'current_action_abs_0', 'current_action_abs_1', 'current_action_abs_2',
+                                         'actions_0', 'actions_1', 'actions_2', 'rl_point', 'out_of_track',
+                                         ]
+                    ep[save_csv_channels].to_csv(f"{timestamp}_raw_data.csv", index=False)
+
+            # calculate steps lost in the communication with the server
+            differences = np.diff(ep.steps.values)
+            number_packages_lost = np.sum(differences[differences > 1])
+            gap_abs_max = np.abs(ep.gap).max()
+            # Calculate out of track and recovery stats
+            out_of_track_ratio = ep['out_of_track'].mean()
+
+            if 'local_velocity_x' in ep.columns:
+                recovering_ratio = ((ep['out_of_track'] == 1) & (ep['local_velocity_x'] > 0.5)).mean()
+            else:
+                recovering_ratio = 0.0  # If local_velocity_x is missing, fallback to 0
+            r = { "ep_count": self.n_episodes,
+                  "ep_steps":len(ep),
+                  "total_steps": self.total_steps,
+                  "packages_lost": number_packages_lost,
+                  "ep_reward": ep.reward.sum(),
+                  "speed_mean": ep.speed.mean(),
+                  "speed_max": ep.speed.max(),
+                  #"completedLaps": ep.completedLaps.values[-1],
+                  "BestLap": ep['BestLap'].values[-1] / 1000.,
+                  "terminated": ep.terminated.values[-1],
+                  "out_of_track_ratio": out_of_track_ratio,
+                  "recovering_ratio": recovering_ratio
+
+            }
+            for i, lapCount in enumerate(list(set( ep.LapCount ))):
+                r[f"LapNo_{i}"] = ep[ep.LapCount == lapCount]["iLastTime"].values[-1] / 1000 # to seconds
+            #  BestLap from the dictionary, excluding lap times that are 0 (incomplete laps)
+            r["ep_bestLapTime"] = min((time for key, time in r.items() if key.startswith("LapNo_") and time > 0), default=0)
+            if verbose:
+                logger.info(f"total_steps: {self.total_steps} ep_steps: {self.ep_steps} ep_reward: {r['ep_reward']:6.1f} "
+                            f"LapDist: {self.state['LapDist']:6.2f} packages lost {number_packages_lost} BestLap: {r['BestLap']}")
+                for i, lapCount in enumerate(list(set( ep.LapCount ))):
+                    logger.info(f"LapNo_{i}: {r[f'LapNo_{i}']:6.2f}")
+                logger.info(f"ep_bestLapTime: {r['ep_bestLapTime']:6.2f}")
+                logger.info(f"speed_mean: {r['speed_mean']:6.2f} speed_max: {r['speed_max']:6.2f} max_abs_gap: {gap_abs_max:6.2f} ep_laps: {len(set(ep.LapCount))}")
+                if len(ep) > 10:
+                    dt = np.diff( ep.currentTime.values )[1:]
+                    logger.info(f"dt avr: {dt.mean():.3f} std: {dt.std():.3f} min: {dt.min():.3f} max: {dt.max():.3f}")
+                logger.info(f"out_of_track_ratio: {out_of_track_ratio:.3f} recovering_ratio: {recovering_ratio:.3f}")
             if number_packages_lost:
                 logger.warning(f"Packages lost in the communication with the server. {number_packages_lost} packages lost")
 

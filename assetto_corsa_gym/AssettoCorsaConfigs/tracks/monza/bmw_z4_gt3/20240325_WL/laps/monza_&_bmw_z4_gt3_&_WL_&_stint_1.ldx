@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LDXFile Version="1.6" Locale="English">
+  <Layers>
+    <Layer>
+      <MarkerBlock>
+        <MarkerGroup Name="Beacons" Index="3">
+          <Marker Version="100" ClassName="BCN" Name="Manual.1" Flags="77" Time="120337000.000000"/>
+          <Marker Version="100" ClassName="BCN" Name="Manual.2" Flags="77" Time="233729000.000000"/>
+          <Marker Version="100" ClassName="BCN" Name="Manual.3" Flags="77" Time="345091000.000000"/>
+          <Marker Version="100" ClassName="BCN" Name="Manual.4" Flags="77" Time="456423000.000000"/>
+          <Marker Version="100" ClassName="BCN" Name="Manual.5" Flags="77" Time="568147000.000000"/>
+        </MarkerGroup>
+      </MarkerBlock>
+      <RangeBlock/>
+    </Layer>
+    <Details>
+      <String Id="Event" Value="AC_LIVE"/>
+      <String Id="Venue" Value="monza"/>
+      <String Id="Driver" Value="WL"/>
+      <String Id="Vehicle Id" Value="bmw_z4_gt3"/>
+      <String Id="Vehicle Desc"/>
+      <String Id="Engine Id"/>
+      <String Id="Session" Value="PRACTICE"/>
+      <String Id="Start Lap"/>
+      <String Id="Short Comment" Value="Tires: Slick Medium (M)"/>
+      <String Id="Long Comment" Value="AC v1.16.4 data exported using ACTI v1.1.2"/>
+      <DateTime Id="Log Date" Value="7/5/2024"/>
+      <DateTime Id="Log Time" Value="14:31:0"/>
+      <String Id="Sky"/>
+      <String Id="Wind Direction"/>
+      <String Id="Weather Comment"/>
+      <String Id="Vehicle Type"/>
+      <String Id="Vehicle Drive Type"/>
+      <String Id="Vehicle Comment"/>
+      <String Id="Total Laps" Value="6"/>
+      <String Id="Fastest Time" Value="1:51.332"/>
+      <String Id="Fastest Lap" Value="3"/>
+    </Details>
+  </Layers>
+</LDXFile>

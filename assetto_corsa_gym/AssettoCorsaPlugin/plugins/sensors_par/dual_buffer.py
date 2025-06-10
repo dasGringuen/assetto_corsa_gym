@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+import mmap
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
