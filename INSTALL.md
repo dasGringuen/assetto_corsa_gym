@@ -140,6 +140,7 @@ Modify the following files:
 Ensure these settings are enabled:  
 ```python
 # config.py
+enable_alternative_python_interpreter = True
 screen_capture_enable = True
 screen_capture_save_to_disk = True  # (Optional) Save images to disk
 ```
@@ -184,23 +185,45 @@ pip install mss pygetwindow opencv-python
 self.config_python_executable = r"C:\Users\<user>\anaconda3\envs\p309\python.exe"
 ```
 
-#### **Step 5: Check That It Works**  
-Enable screen capture in `<sensor_par>/config.py`:
+---
+
+## **5. (Optional) Remote Connection**
+
+Run **Assetto Corsa (server)** on one machine and the **Gym client** on another (same LAN).
+The client sends control commands, while the AC machine applies them (via vJoy) and streams telemetry back.
+
+### **5.1 Configure Assetto Corsa**
+
+In the **Assetto Corsa game settings** (`Options > Video > Framerate Limit`), set the FPS limit to **100**  in the plugin to avoid lagging when vJoy is executed by the server.
+
+### **5.2 Server (AC machine)**
+
+Edit `<AC_install>/apps/python/sensor_par/config.py`:
 
 ```python
-self.screen_capture_enable = True
-self.screen_capture_save_to_disk = True
+# Main tick rate (must match AC FPS cap)
+self.sampling_freq = 100  # Hz
+
+# vJoy runs on the AC/server machine
+self.vjoy_executed_by_server = True
 ```
 
-If image saving is enabled, you should see images in:
+### **5.3 Client (Gym machine)**
 
-```sh
-C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\captures
+Edit the client configuration (e.g., `config.yml`):
+
+```yaml
+# IP address of the AC server
+remote_machine_ip: "<SERVER_LAN_IP>"
+
+# vJoy is executed on the server side
+vjoy_executed_by_server: true
 ```
+
 
 ---
 
-## **5. Debugging & Logs**  
+## **6. Debugging & Logs**  
 - To modify the plugin without exiting Assetto Corsa completely, you can leave the Assetto Corsa Launcher running or use Content Manager.
 - Useful debug messages can be found in:  
   ```sh

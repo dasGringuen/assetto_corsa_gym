@@ -1,18 +1,23 @@
 import os
+import sys
 import socket
 import threading
 import time
 import json
-from precise_timer import PreciseTimer
 from config import Config
 from record_telemetry import Telemetry
 from profiler import Profiler
 import logging
 logger = logging.getLogger(__name__)
-
 logger.setLevel(logging.INFO)
 
 MAX_MSG_SIZE = 2**17
+
+try:
+    import win32event
+except:
+    logger.warning("win32event not installed; screen capture is not possible.")
+
 
 class Client(dict):
     def __init__(self, server_socket, addr):
@@ -75,13 +80,11 @@ class EgoServer:
         self.config = config
         self.total_errors_out_of_sync = 0
         self.total_steps = 0
-        # self.timer = PreciseTimer(1 / self.config.sampling_freq) # runs in a separate thread
-        # self.timer.set_function(self.tick)
         self.socket_open = False
 
         # ----- Create the named events -----
         if self.config.screen_capture_enable:
-            import win32event, win32con
+            assert sys.platform.startswith("win"), "screen_capture_enable is Windows-only"
             self.hTriggerImageCapture = win32event.CreateEvent(None, True, False, self.config.trigger_image_capture_event_name)
             self.hEgoSamplingEvent = win32event.CreateEvent(None, True, False, self.config.ego_sampling_freq_event_name)
 
@@ -114,7 +117,6 @@ class EgoServer:
         logging.info("[EGO SERV] Start ego server socket on: {}:{}".format(self.host, self.port))
         logging.info("[EGO SERV] Tick {} Hz Ego: {} Hz".format(self.config.sampling_freq, self.config.ego_sampling_freq))
         try:
-            #self.timer.start()
             while self.server_socket and self.socket_open:
                 addr = None
                 try:
@@ -147,7 +149,7 @@ class EgoServer:
                         logger.info("Resetting car")
                     else:
                         self.profiler.add_event("reply")
-                        data = eval(data)
+                        data = json.loads(data)
                         self.current_client.update(data)
                         if data["server_steps"] != self.car["steps"]:
                             self.car.total_errors_out_of_sync += 1
@@ -156,8 +158,6 @@ class EgoServer:
                             self.controls.set_controls(steer=self.current_client["steer"],
                                                     acc=self.current_client["acc"],
                                                     brake=self.current_client["brake"],
-                                                    enable_clutch=self.current_client["enable_clutch"],
-                                                    clutch=self.current_client["clutch"],
                                                     enable_gear_shift=self.current_client["enable_gear_shift"],
                                                     shift_up=self.current_client["shift_up"],
                                                     shift_down=self.current_client["shift_down"])
@@ -185,7 +185,7 @@ class EgoServer:
                 self.close()
 
     def tick(self):
-        #self.profiler.add_event("tick")
+        self.profiler.add_event("tick")
         # save telemetry
         if self.telemetry and self.telemetry.recording:
             if (self.total_steps % (self.config.sampling_freq // self.config.telemetry_sampling_freq)) == 0:
@@ -193,6 +193,7 @@ class EgoServer:
                 self.telemetry.step(self.car.copy())
 
         if self.config.screen_capture_enable and (self.total_steps % (self.config.sampling_freq // self.config.screen_capture_freq)) == 0:
+            assert sys.platform.startswith("win"), "screen_capture_enable is Windows-only"
             # Signal screen capture process to capture a new image
             win32event.SetEvent(self.hTriggerImageCapture)
 
@@ -212,6 +213,5 @@ class EgoServer:
                     self.current_client = None
                 except Exception:
                     logger.exception("An error occurred in the tick function")
-                    #self.timer.stop()
 
         self.total_steps += 1

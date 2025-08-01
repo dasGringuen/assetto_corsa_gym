@@ -1,3 +1,4 @@
+import sys
 import socket
 import json
 import logging
@@ -6,8 +7,10 @@ import pandas as pd
 import numpy as np
 import os
 from AssettoCorsaEnv.pygame_joystick_handler import JoystickHandler
-from AssettoCorsaEnv.car_control import Controls
-import AssettoCorsaPlugin.plugins.sensors_par.dual_buffer as dual_buffer
+from AssettoCorsaPlugin.plugins.sensors_par.car_control import Controls
+
+if sys.platform.startswith("win"):
+    import AssettoCorsaPlugin.plugins.sensors_par.dual_buffer as dual_buffer
 
 logger = logging.getLogger(__name__)
 

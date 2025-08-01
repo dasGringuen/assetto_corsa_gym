@@ -1,12 +1,22 @@
 import os
 
 if os.name == 'posix':
-    from vjoy_linux import vJoy
+    try:
+        from AssettoCorsaEnv.vjoy_linux import vJoy
+    except:
+        from vjoy_linux import vJoy
 else:
-    from vjoy import vJoy
+    try:
+        from AssettoCorsaEnv.vjoy import vJoy
+    except:
+        from vjoy import vJoy
 
-from ac_logger import logger
+import logging
+logger = logging.getLogger(__name__)
 
+
+import logging
+logger = logging.getLogger(__name__)
 SCALE = 16384
 
 class Controls(object):
