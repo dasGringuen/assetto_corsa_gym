@@ -67,7 +67,7 @@ class Client():
         self.state = ServerState()
         self.simulation_management = SimulationManagement(self.config)
         self.socket = None
-        self.controls = DriverControls(self.vjoy_executed_by_server)
+        self.controls = None
         self.record_controls_from_client = config.record_controls_from_client
 
         # Joystick handler (only used if needed)
@@ -93,6 +93,10 @@ class Client():
         except socket.error as emsg:
             logger.error(f"Error sending to server: {emsg}")
             raise TimeoutError
+        
+    def setup_controls(self):
+        self.controls = DriverControls(self.vjoy_executed_by_server)
+        self.controls.set_defaults()
 
     def setup_connection(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -159,14 +163,13 @@ class Client():
             self.close()
         if send_reset:
             self.simulation_management.send_reset()
-        self.controls.set_defaults()
+        self.setup_controls()
         self.setup_connection()
 
     def close(self):
         # Send disconnect message
-        if not self.vjoy_executed_by_server:
-            self.controls.set_defaults()
-            self.controls.apply_local_controls()
+        if not self.vjoy_executed_by_server and self.controls:
+            self.controls.close()
         self.reply_to_server("disconnect")
         time.sleep(0.1)
         if self.socket:
@@ -274,3 +277,6 @@ class DriverControls(dict):
 
     def export(self):
         return json.dumps(self)
+    
+    def close(self):
+        self.local_controls.close()
