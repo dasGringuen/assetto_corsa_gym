@@ -79,3 +79,17 @@ monaco:
   track_grid_file: monaco_0.1m.pkl
   ref_lap_file: monaco-racing_line.csv
   TrackLength: 3290.542236328125
+
+magione:
+  track_name: magione
+  track_configuration:
+  track_file: magione.csv
+  track_grid_file: magione_0.1m.pkl
+  ref_lap_file: magione-racing_line.csv
+  # TrackLength - не из ac.getTrackLength() (нет живой сессии), а cumulative
+  # dist последней точки content/tracks/magione/ai/fast_lane.ai. Значение
+  # безопасно как placeholder: ac_env.py:638 перезаписывает его живыми
+  # данными static_info при первом reset(). Подробности и как проверено -
+  # docs/reports/magione_track_files.md.
+  TrackLength: 2455.121337890625
+  description: Autodromo di Umbria (Italy)
